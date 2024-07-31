@@ -13,17 +13,49 @@
             >
               <div class="row" style="padding: 15px">
                 <div class="col-6">
-                  <h5>Order ID: {{ order.order_id }}</h5>
-                  <p>Date: {{ order.order_date }}</p>
-                  <p>Total Amount: {{ order.total_amount }} awwwบาท</p>
+                  <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
+                  <p>วันที่ : {{ order.order_date }}</p>
+                  <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
                 </div>
                 <div class="col-6">
                   <q-btn
                     @click="viewOrderDetails(order)"
                     color="red"
                     label="ดูรายละเอียด"
+                    style="margin-left: 50%; margin-top: 20%"
                   />
                 </div>
+              </div>
+              <div v-if="order.showDetails">
+                <q-card-section>
+                  <h5>รายการสินค้า:</h5>
+                  <ul>
+                    <li
+                      v-for="item in order.orderItems"
+                      :key="item.order_item_id"
+                    >
+                      <div class="row">
+                        <div class="col">
+                          <p>ผลิตภัณฑ์ : {{ item.product_name }}</p>
+                          <p>คำอธิบาย : {{ item.description }}</p>
+                          <p>ราคา : {{ item.product_price }} บาท</p>
+                          <p>จำนวน: {{ item.quantity }}</p>
+                        </div>
+                        <div class="col" style="margin-left: 50px">
+                          <img
+                            :src="item.image_base64"
+                            alt="Product Image"
+                            width="150"
+                            height="150"
+                          />
+                        </div>
+                      </div>
+                      <hr />
+                      <br />
+                    </li>
+                    <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+                  </ul>
+                </q-card-section>
               </div>
             </q-card>
           </div>
@@ -32,66 +64,17 @@
       </div>
       <div class="col-1 bgside"></div>
     </div>
-
-    <q-dialog v-model="isDialogOpen">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Order Details</div>
-        </q-card-section>
-        <q-card-section>
-          <p>Order ID: {{ selectedOrder.order_id }}</p>
-          <p>Date: {{ selectedOrder.order_date }}</p>
-          <p>Total Amount: {{ selectedOrder.total_amount }} บาท</p>
-          <div v-if="orderItems.length">
-            <h5>Items:</h5>
-            <ul>
-              <li v-for="item in orderItems" :key="item.order_item_id">
-                <p>Product ID: {{ item.product_id }}</p>
-                <p>Product Name: {{ item.product_name }}</p>
-                <p>Description: {{ item.description }}</p>
-                <p>Price: {{ item.product_price }} บาท</p>
-                <p>Quantity: {{ item.quantity }}</p>
-                <p>Category: {{ item.category }}</p>
-
-                <img
-                  :src="item.image_base64"
-                  alt="Product Image"
-                  width="100"
-                  height="100"
-                />
-              </li>
-            </ul>
-          </div>
-          <div v-else-if="!loading && !orderItems.length">
-            <p>No items found for this order.</p>
-          </div>
-          <div v-else>
-            <p>Loading...</p>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            label="Close"
-            color="primary"
-            @click="isDialogOpen = false"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { format } from "date-fns";
 
 export default {
   data() {
     return {
       orders: [],
-      isDialogOpen: false,
-      selectedOrder: {},
-      orderItems: [],
       loading: false,
     };
   },
@@ -102,25 +85,31 @@ export default {
         const response = await axios.get(
           `http://localhost:3000/orders/${memberId}`
         );
-        this.orders = response.data;
+        this.orders = response.data.map((order) => ({
+          ...order,
+          order_date: format(new Date(order.order_date), "dd MMMM yyyy"),
+          showDetails: false,
+          orderItems: [],
+        }));
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
     },
     async viewOrderDetails(order) {
-      this.selectedOrder = order;
-      this.isDialogOpen = true;
-      this.loading = true;
-      try {
-        const response = await axios.get(
-          `http://localhost:3000/order-items/${order.order_id}`
-        );
-        this.orderItems = response.data;
-      } catch (error) {
-        console.error("Error fetching order items:", error);
-        this.orderItems = []; // Clear the order items if there's an error
-      } finally {
-        this.loading = false;
+      order.showDetails = !order.showDetails;
+      if (order.showDetails && order.orderItems.length === 0) {
+        this.loading = true;
+        try {
+          const response = await axios.get(
+            `http://localhost:3000/order-items/${order.order_id}`
+          );
+          order.orderItems = response.data;
+        } catch (error) {
+          console.error("Error fetching order items:", error);
+          order.orderItems = []; // Clear the order items if there's an error
+        } finally {
+          this.loading = false;
+        }
       }
     },
   },
