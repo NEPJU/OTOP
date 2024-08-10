@@ -17,6 +17,12 @@
               @click="toggleShippedOrdersVisibility"
               label="ที่ต้องจัดส่ง"
             />
+            <q-btn
+              class="btn-box"
+              color="brown-6"
+              @click="toggleDeliveredOrdersVisibility"
+              label="ได้รับของแล้ว"
+            />
           </div>
         </div>
         <div v-if="loading" class="loading-spinner">
@@ -130,17 +136,56 @@
                         title="ชำระเงินสำเร็จ"
                         subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
                       />
-                      <q-timeline-entry color="blue" icon="local_shipping">
-                        <div>
-                          <h6>เลข Tracking</h6>
-                          <p>{{ order.trackingNumber }}</p>
-                        </div>
+                      <q-timeline-entry
+                        color="blue"
+                        icon="local_shipping"
+                        subtitle="กำลังจัดส่งผลิตภัณฑ์"
+                      >
+                        <h6 style="margin-top: -5px">เลข Tracking</h6>
+                        <p style="margin-top: -15px">
+                          {{ order.trackingNumber }}
+                        </p>
                       </q-timeline-entry>
                       <q-timeline-entry
                         color="orange"
                         icon="check_circle"
                         title="ยืนยันการได้รับของ"
                         subtitle="ลูกค้าได้ยืนยันการได้รับสินค้าแล้ว"
+                      />
+                    </q-timeline>
+                    <div class="center-btn">
+                      <q-btn
+                        @click="markAsDelivered(order)"
+                        color="green"
+                        label="ยืนยันการได้รับสินค้า"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Timeline for Delivered Status -->
+                  <div v-if="order.status === 'Delivered'">
+                    <q-timeline color="secondary" layout="dense">
+                      <q-timeline-entry
+                        color="green"
+                        icon="done"
+                        title="ชำระเงินสำเร็จ"
+                        subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
+                      />
+                      <q-timeline-entry
+                        color="blue"
+                        icon="local_shipping"
+                        subtitle="กำลังจัดส่งผลิตภัณฑ์"
+                      >
+                        <h6 style="margin-top: -5px">เลข Tracking</h6>
+                        <p style="margin-top: -15px">
+                          {{ order.trackingNumber }}
+                        </p>
+                      </q-timeline-entry>
+                      <q-timeline-entry
+                        color="orange"
+                        icon="check_circle"
+                        title="ได้รับของเรียบร้อยแล้ว"
+                        subtitle="ลูกค้าได้รับสินค้าของท่านแล้ว"
                       />
                     </q-timeline>
                   </div>
@@ -214,17 +259,116 @@
                         title="ชำระเงินสำเร็จ"
                         subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
                       />
-                      <q-timeline-entry color="blue" icon="local_shipping">
-                        <div>
-                          <h6>เลข Tracking</h6>
-                          <p>{{ order.trackingNumber }}</p>
-                        </div>
+                      <q-timeline-entry
+                        color="blue"
+                        icon="local_shipping"
+                        subtitle="กำลังจัดส่งผลิตภัณฑ์"
+                      >
+                        <h6 style="margin-top: -5px">เลข Tracking</h6>
+                        <p style="margin-top: -15px">
+                          {{ order.trackingNumber }}
+                        </p>
                       </q-timeline-entry>
                       <q-timeline-entry
                         color="orange"
                         icon="check_circle"
                         title="ยืนยันการได้รับของ"
                         subtitle="ลูกค้าได้ยืนยันการได้รับสินค้าแล้ว"
+                      />
+                    </q-timeline>
+                    <div class="center-btn">
+                      <q-btn
+                        @click="markAsDelivered(order)"
+                        color="green"
+                        label="ยืนยันการได้รับสินค้า"
+                      />
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </q-col>
+          </q-row>
+        </div>
+        <div v-if="deliveredOrdersVisible && !loading">
+          <q-row>
+            <q-col
+              v-for="order in deliveredOrders"
+              :key="order.order_id"
+              cols="12"
+              sm="6"
+            >
+              <q-card class="order-card">
+                <div class="row card-header">
+                  <div class="col-6">
+                    <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
+                    <p>วันที่ : {{ order.order_date }}</p>
+                    <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+                    <p>สถานะ : {{ order.status }}</p>
+                  </div>
+                  <div class="col-6">
+                    <q-btn
+                      @click="toggleOrderDetails(order)"
+                      color="red"
+                      :label="
+                        order.showDetails ? 'ซ่อนรายละเอียด' : 'ดูรายละเอียด'
+                      "
+                      class="details-btn"
+                    />
+                  </div>
+                </div>
+                <q-card-section v-show="order.showDetails">
+                  <h5>รายการสินค้า:</h5>
+                  <ul>
+                    <li
+                      v-for="item in order.orderItems"
+                      :key="item.order_item_id"
+                      class="order-item"
+                    >
+                      <div class="row">
+                        <div class="col">
+                          <p>ผลิตภัณฑ์ : {{ item.product_name }}</p>
+                          <p>คำอธิบาย : {{ item.description }}</p>
+                          <p>ราคา : {{ item.product_price }} บาท</p>
+                          <p>จำนวน: {{ item.quantity }}</p>
+                        </div>
+                        <div class="col">
+                          <img
+                            :src="item.image_base64"
+                            alt="Product Image"
+                            class="product-image"
+                          />
+                        </div>
+                      </div>
+                      <hr />
+                      <br />
+                    </li>
+                  </ul>
+                  <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+
+                  <!-- Timeline for Delivered Status -->
+                  <div v-if="order.status === 'Delivered'">
+                    <q-timeline color="secondary" layout="dense">
+                      <q-timeline-entry
+                        color="green"
+                        icon="done"
+                        title="ชำระเงินสำเร็จ"
+                        subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
+                      />
+                      <q-timeline-entry
+                        color="blue"
+                        icon="local_shipping"
+                        subtitle="กำลังจัดส่งผลิตภัณฑ์"
+                      >
+                        <h6 style="margin-top: -5px">เลข Tracking</h6>
+                        <p style="margin-top: -15px">
+                          {{ order.trackingNumber }}
+                        </p>
+                      </q-timeline-entry>
+                      <q-timeline-entry
+                        color="orange"
+                        icon="check_circle"
+                        title="ได้รับของเรียบร้อยแล้ว"
+                        subtitle="ลูกค้าได้รับสินค้าของท่านแล้ว"
                       />
                     </q-timeline>
                   </div>
@@ -260,6 +404,7 @@ export default {
       loading: false,
       ordersVisible: false,
       shippedOrdersVisible: false,
+      deliveredOrdersVisible: false,
       error: false,
       errorMessage: "",
       imageUrl: "",
@@ -274,6 +419,9 @@ export default {
     },
     shippedOrders() {
       return this.orders.filter((order) => order.status === "Shipped");
+    },
+    deliveredOrders() {
+      return this.orders.filter((order) => order.status === "Delivered");
     },
   },
   methods: {
@@ -322,6 +470,7 @@ export default {
     toggleOrdersVisibility() {
       this.ordersVisible = !this.ordersVisible;
       this.shippedOrdersVisible = false;
+      this.deliveredOrdersVisible = false;
       if (this.ordersVisible && this.orders.length === 0) {
         this.fetchOrders();
       }
@@ -329,8 +478,45 @@ export default {
     toggleShippedOrdersVisibility() {
       this.shippedOrdersVisible = !this.shippedOrdersVisible;
       this.ordersVisible = false;
+      this.deliveredOrdersVisible = false;
       if (this.shippedOrdersVisible && this.orders.length === 0) {
         this.fetchOrders();
+      }
+    },
+    toggleDeliveredOrdersVisibility() {
+      this.deliveredOrdersVisible = !this.deliveredOrdersVisible;
+      this.ordersVisible = false;
+      this.shippedOrdersVisible = false;
+      if (this.deliveredOrdersVisible && this.orders.length === 0) {
+        this.fetchOrders();
+      }
+    },
+    async markAsDelivered(order) {
+      try {
+        const payload = {
+          status: "Delivered",
+        };
+
+        await axios.put(
+          `http://localhost:3000/orders/${order.order_id}/status`,
+          payload
+        );
+
+        order.status = "Delivered"; // Update the local status to reflect the change
+        Swal.fire({
+          icon: "success",
+          title: "สำเร็จ",
+          text: "สถานะได้ถูกเปลี่ยนเป็น Delivered",
+        });
+
+        this.fetchOrders(); // Refresh the orders list
+      } catch (error) {
+        console.error("Error marking order as delivered:", error);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: "ไม่สามารถเปลี่ยนสถานะได้",
+        });
       }
     },
     handleImageChange(event) {
@@ -379,8 +565,8 @@ export default {
 .order-card {
   margin-top: 10px;
   margin-bottom: 10px;
-  width: 100%; /* Ensure full width */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  width: 100%;
+  box-sizing: border-box;
 }
 .card-header {
   padding: 15px;
