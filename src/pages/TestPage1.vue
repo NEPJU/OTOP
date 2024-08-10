@@ -77,16 +77,36 @@
                     </li>
                   </ul>
                   <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-                  <label for="image-upload" class="upload-label">
-                    Choose an image
-                  </label>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    @change="handleImageChange"
-                    class="upload-input"
-                  />
+
+                  <div v-if="order.status !== 'Waiting'">
+                    <label for="image-upload" class="upload-label">
+                      อัพโหลดใบเสร็จการชำระเงิน
+                    </label>
+                    <div class="qrcode-container">
+                      <img
+                        src="/src/assets/qrcodepromtpay.jpg"
+                        alt="QR Code"
+                        style="width: 450px"
+                      />
+                    </div>
+
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      @change="handleImageChange"
+                      class="upload-input"
+                    />
+                  </div>
+
+                  <div v-else>
+                    <h5>รูปภาพการชำระเงิน:</h5>
+                    <img
+                      :src="order.payment_image_base64"
+                      class="payment-image"
+                      alt="Payment Image"
+                    />
+                  </div>
 
                   <img
                     :src="imageUrl"
@@ -94,7 +114,7 @@
                     class="preview-image"
                     alt="Uploaded Image"
                   />
-                  <div class="center-btn">
+                  <div class="center-btn" v-if="order.status !== 'Waiting'">
                     <q-btn @click="markAsShipped(order)" color="green">
                       ชำระเงิน
                     </q-btn>
@@ -196,6 +216,7 @@
 <script>
 import axios from "axios";
 import { format } from "date-fns";
+import Swal from "sweetalert2";
 
 export default {
   data() {
@@ -214,7 +235,9 @@ export default {
   },
   computed: {
     filteredOrders() {
-      return this.orders.filter((order) => order.status === "Pending");
+      return this.orders.filter(
+        (order) => order.status === "Pending" || order.status === "Waiting"
+      );
     },
     shippedOrders() {
       return this.orders.filter((order) => order.status === "Shipped");
@@ -287,8 +310,6 @@ export default {
         } catch (error) {
           console.error("Error fetching order items:", error);
           order.orderItems = [];
-          // this.error = true;
-          // this.errorMessage = "There was an error fetching the order items.";
         } finally {
           this.loading = false;
         }
@@ -297,18 +318,36 @@ export default {
       this.dialogVisible = true;
     },
     async markAsShipped(order) {
+      if (!this.imageUrl) {
+        Swal.fire({
+          icon: "warning",
+          title: "กรุณาอัพโหลดรูปภาพ",
+          text: "คุณต้องอัพโหลดรูปภาพก่อนชำระเงิน",
+        });
+        return;
+      }
+
       try {
         await axios.put(
           `http://localhost:3000/orders/${order.order_id}/status`,
           {
-            status: "Shipped",
+            status: "Waiting",
+            image: this.imageUrl, // Pass the uploaded image data as a Base64 string
           }
         );
-        order.status = "Shipped";
+        order.status = "Waiting";
+        Swal.fire({
+          icon: "success",
+          title: "สำเร็จ",
+          text: "สถานะได้ถูกเปลี่ยนเป็น Waiting และรูปภาพถูกบันทึกเรียบร้อย",
+        });
       } catch (error) {
-        console.error("Error updating order status:", error);
-        this.error = true;
-        this.errorMessage = "There was an error updating the order status.";
+        console.error("Error updating order status and saving image:", error);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: "ไม่สามารถเปลี่ยนสถานะได้",
+        });
       }
     },
     handleImageChange(event) {
@@ -366,10 +405,16 @@ export default {
 .details-btn {
   margin-left: auto;
   margin-right: auto;
+  margin-top: 28%;
 }
 .upload-label {
   display: block;
   margin-top: 10px;
+}
+.qrcode-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
 }
 .upload-input {
   display: block;
@@ -390,5 +435,11 @@ export default {
 .product-image {
   width: 150px;
   height: 150px;
+}
+.payment-image {
+  width: 100%;
+  max-width: 450px;
+  display: block;
+  margin: 20px auto;
 }
 </style>
