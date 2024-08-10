@@ -78,7 +78,8 @@
                   </ul>
                   <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
 
-                  <div v-if="order.status !== 'Waiting'">
+                  <!-- Payment Image or Upload Section -->
+                  <div v-if="order.status === 'Pending'">
                     <label for="image-upload" class="upload-label">
                       อัพโหลดใบเสร็จการชำระเงิน
                     </label>
@@ -114,10 +115,34 @@
                     class="preview-image"
                     alt="Uploaded Image"
                   />
-                  <div class="center-btn" v-if="order.status !== 'Waiting'">
+                  <div class="center-btn" v-if="order.status === 'Pending'">
                     <q-btn @click="markAsShipped(order)" color="green">
                       ชำระเงิน
                     </q-btn>
+                  </div>
+
+                  <!-- Timeline for Shipped Status -->
+                  <div v-if="order.status === 'Shipped'">
+                    <q-timeline color="secondary" layout="dense">
+                      <q-timeline-entry
+                        color="green"
+                        icon="done"
+                        title="ชำระเงินสำเร็จ"
+                        subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
+                      />
+                      <q-timeline-entry color="blue" icon="local_shipping">
+                        <div>
+                          <h6>เลข Tracking</h6>
+                          <p>{{ order.trackingNumber }}</p>
+                        </div>
+                      </q-timeline-entry>
+                      <q-timeline-entry
+                        color="orange"
+                        icon="check_circle"
+                        title="ยืนยันการได้รับของ"
+                        subtitle="ลูกค้าได้ยืนยันการได้รับสินค้าแล้ว"
+                      />
+                    </q-timeline>
                   </div>
                 </q-card-section>
               </q-card>
@@ -142,13 +167,68 @@
                   </div>
                   <div class="col-6">
                     <q-btn
-                      @click="openDialog(order)"
+                      @click="toggleOrderDetails(order)"
                       color="red"
-                      label="ดูรายละเอียด"
+                      :label="
+                        order.showDetails ? 'ซ่อนรายละเอียด' : 'ดูรายละเอียด'
+                      "
                       class="details-btn"
                     />
                   </div>
                 </div>
+                <q-card-section v-show="order.showDetails">
+                  <h5>รายการสินค้า:</h5>
+                  <ul>
+                    <li
+                      v-for="item in order.orderItems"
+                      :key="item.order_item_id"
+                      class="order-item"
+                    >
+                      <div class="row">
+                        <div class="col">
+                          <p>ผลิตภัณฑ์ : {{ item.product_name }}</p>
+                          <p>คำอธิบาย : {{ item.description }}</p>
+                          <p>ราคา : {{ item.product_price }} บาท</p>
+                          <p>จำนวน: {{ item.quantity }}</p>
+                        </div>
+                        <div class="col">
+                          <img
+                            :src="item.image_base64"
+                            alt="Product Image"
+                            class="product-image"
+                          />
+                        </div>
+                      </div>
+                      <hr />
+                      <br />
+                    </li>
+                  </ul>
+                  <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+
+                  <!-- Timeline for Shipped Status -->
+                  <div v-if="order.status === 'Shipped'">
+                    <q-timeline color="secondary" layout="dense">
+                      <q-timeline-entry
+                        color="green"
+                        icon="done"
+                        title="ชำระเงินสำเร็จ"
+                        subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
+                      />
+                      <q-timeline-entry color="blue" icon="local_shipping">
+                        <div>
+                          <h6>เลข Tracking</h6>
+                          <p>{{ order.trackingNumber }}</p>
+                        </div>
+                      </q-timeline-entry>
+                      <q-timeline-entry
+                        color="orange"
+                        icon="check_circle"
+                        title="ยืนยันการได้รับของ"
+                        subtitle="ลูกค้าได้ยืนยันการได้รับสินค้าแล้ว"
+                      />
+                    </q-timeline>
+                  </div>
+                </q-card-section>
               </q-card>
             </q-col>
           </q-row>
@@ -165,51 +245,6 @@
       </div>
       <div class="col-1 bgside"></div>
     </div>
-    <!-- Dialog for Order Details -->
-    <q-dialog v-model="dialogVisible">
-      <q-card>
-        <q-card-section>
-          <div class="row">
-            <div class="col">
-              <h5>ออเดอร์ที่ : {{ currentOrder.order_id }}</h5>
-              <p>วันที่ : {{ currentOrder.order_date }}</p>
-              <p>เงินรวมทั้งหมด : {{ currentOrder.total_amount }} บาท</p>
-              <p>สถานะ : {{ currentOrder.status }}</p>
-            </div>
-          </div>
-          <h5>รายการสินค้า:</h5>
-          <ul>
-            <li
-              v-for="item in currentOrder.orderItems"
-              :key="item.order_item_id"
-              class="order-item"
-            >
-              <div class="row">
-                <div class="col">
-                  <p>ผลิตภัณฑ์ : {{ item.product_name }}</p>
-                  <p>คำอธิบาย : {{ item.description }}</p>
-                  <p>ราคา : {{ item.product_price }} บาท</p>
-                  <p>จำนวน: {{ item.quantity }}</p>
-                </div>
-                <div class="col">
-                  <img
-                    :src="item.image_base64"
-                    alt="Product Image"
-                    class="product-image"
-                  />
-                </div>
-              </div>
-              <hr />
-              <br />
-            </li>
-            <p>เงินรวมทั้งหมด : {{ currentOrder.total_amount }} บาท</p>
-          </ul>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Close" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 
@@ -227,8 +262,6 @@ export default {
       shippedOrdersVisible: false,
       error: false,
       errorMessage: "",
-      dialogVisible: false,
-      currentOrder: {},
       imageUrl: "",
       imageName: "",
     };
@@ -257,6 +290,7 @@ export default {
           order_date: format(new Date(order.order_date), "dd MMMM yyyy"),
           showDetails: false,
           orderItems: [],
+          trackingNumber: order.tracking_number || "",
         }));
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -297,65 +331,6 @@ export default {
       this.ordersVisible = false;
       if (this.shippedOrdersVisible && this.orders.length === 0) {
         this.fetchOrders();
-      }
-    },
-    async openDialog(order) {
-      if (order.orderItems.length === 0) {
-        this.loading = true;
-        try {
-          const response = await axios.get(
-            `http://localhost:3000/order-items/${order.order_id}`
-          );
-          order.orderItems = response.data;
-        } catch (error) {
-          console.error("Error fetching order items:", error);
-          order.orderItems = [];
-        } finally {
-          this.loading = false;
-        }
-      }
-      this.currentOrder = order;
-      this.dialogVisible = true;
-    },
-    async markAsShipped(order) {
-      if (!this.imageUrl) {
-        Swal.fire({
-          icon: "warning",
-          title: "กรุณาอัพโหลดรูปภาพ",
-          text: "คุณต้องอัพโหลดรูปภาพก่อนชำระเงิน",
-        });
-        return;
-      }
-
-      try {
-        // Prepare the payload with the image and status
-        const payload = {
-          status: "Waiting",
-          payment_image_base64: this.imageUrl, // Include the Base64 image data
-        };
-
-        // Send the data to the backend
-        await axios.put(
-          `http://localhost:3000/orders/${order.order_id}/status`,
-          payload
-        );
-
-        // Update the order status locally after a successful request
-        order.status = "Waiting";
-        order.payment_image_base64 = this.imageUrl; // Update local data to reflect the uploaded image
-
-        Swal.fire({
-          icon: "success",
-          title: "สำเร็จ",
-          text: "สถานะได้ถูกเปลี่ยนเป็น Waiting และรูปภาพถูกบันทึกเรียบร้อย",
-        });
-      } catch (error) {
-        console.error("Error updating order status and saving image:", error);
-        Swal.fire({
-          icon: "error",
-          title: "เกิดข้อผิดพลาด",
-          text: "ไม่สามารถเปลี่ยนสถานะได้",
-        });
       }
     },
     handleImageChange(event) {
