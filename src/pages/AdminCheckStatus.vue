@@ -40,6 +40,10 @@
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
                     <p>สถานะ : {{ order.status }}</p>
+                    <!-- Display Tracking Number -->
+                    <p v-if="order.trackingNumber">
+                      Tracking Number: {{ order.trackingNumber }}
+                    </p>
                   </div>
                   <div class="col-6">
                     <q-btn
@@ -95,6 +99,11 @@
                             v-model="order.trackingNumber"
                             placeholder="กรอกเลข Tracking"
                             outlined
+                          />
+                          <q-btn
+                            @click="confirmPayment(order)"
+                            color="green"
+                            label="บันทึก Tracking"
                           />
                         </div>
                       </q-timeline-entry>
@@ -189,33 +198,46 @@ export default {
     },
     async confirmPayment(order) {
       try {
-        const payload = {
-          status: "Shipped",
-        };
+        let payload = {};
 
-        console.log("Sending payload:", payload);
+        if (order.status === "Waiting") {
+          payload = { status: "Shipped" };
+          console.log("Sending payload:", payload);
+          const response = await axios.put(
+            `http://localhost:3000/orders/${order.order_id}/confirm-payment`,
+            payload
+          );
+          order.status = "Shipped";
+          Swal.fire({
+            icon: "success",
+            title: "สำเร็จ",
+            text: "สถานะได้ถูกเปลี่ยนเป็น Shipped และจำนวนสินค้าถูกปรับแล้ว",
+          });
+        } else if (order.status === "Shipped" && order.trackingNumber) {
+          payload = { tracking_number: order.trackingNumber };
+          console.log("Sending tracking number:", payload);
+          const response = await axios.put(
+            `http://localhost:3000/orders/${order.order_id}/add-tracking`,
+            payload
+          );
+          order.trackingNumber = payload.tracking_number; // Update the tracking number locally
+          Swal.fire({
+            icon: "success",
+            title: "สำเร็จ",
+            text: "เลข Tracking ได้ถูกเพิ่มเรียบร้อย",
+          });
+        }
 
-        const response = await axios.put(
-          `http://localhost:3000/orders/${order.order_id}/confirm-payment`,
-          payload
-        );
-
-        console.log("Server response:", response);
-
-        // Update order status locally
-        order.status = "Shipped";
-        this.filterOrders("Waiting"); // Refresh to show only waiting orders after update
-        Swal.fire({
-          icon: "success",
-          title: "สำเร็จ",
-          text: "สถานะได้ถูกเปลี่ยนเป็น Shipped และจำนวนสินค้าถูกปรับแล้ว",
-        });
+        this.filterOrders(order.status);
       } catch (error) {
-        console.error("Error updating order status:", error.response || error);
+        console.error(
+          "Error updating order status or tracking number:",
+          error.response || error
+        );
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาด",
-          text: "ไม่สามารถเปลี่ยนสถานะได้",
+          text: "ไม่สามารถเปลี่ยนสถานะหรือเพิ่มเลข Tracking ได้",
         });
       }
     },
