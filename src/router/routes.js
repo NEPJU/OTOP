@@ -182,6 +182,13 @@ const routes = [
       { path: "", component: () => import("pages/AdminEditUser.vue") },
     ],
   },
+  {
+    path: "/admincheck",
+    component: () => import("layouts/AdminLayout.vue"),
+    children: [
+      { path: "", component: () => import("pages/AdminCheckStatus.vue") },
+    ],
+  },
 ];
 
 export default routes;

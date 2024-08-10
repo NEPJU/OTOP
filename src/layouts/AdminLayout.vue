@@ -50,6 +50,14 @@
                     </q-item>
                   </router-link>
                   <router-link
+                    to="/admincheck"
+                    style="text-decoration: none; color: black"
+                  >
+                    <q-item clickable v-close-popup>
+                      <q-item-section>การชำระเงิน</q-item-section>
+                    </q-item>
+                  </router-link>
+                  <router-link
                     to="/admindash"
                     style="text-decoration: none; color: black"
                   >

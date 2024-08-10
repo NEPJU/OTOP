@@ -328,14 +328,22 @@ export default {
       }
 
       try {
+        // Prepare the payload with the image and status
+        const payload = {
+          status: "Waiting",
+          payment_image_base64: this.imageUrl, // Include the Base64 image data
+        };
+
+        // Send the data to the backend
         await axios.put(
           `http://localhost:3000/orders/${order.order_id}/status`,
-          {
-            status: "Waiting",
-            image: this.imageUrl, // Pass the uploaded image data as a Base64 string
-          }
+          payload
         );
+
+        // Update the order status locally after a successful request
         order.status = "Waiting";
+        order.payment_image_base64 = this.imageUrl; // Update local data to reflect the uploaded image
+
         Swal.fire({
           icon: "success",
           title: "สำเร็จ",
