@@ -10,13 +10,13 @@
             style="padding-bottom: 25px; padding-top: 15px"
           >
             <div style="text-align: center; font-size: 35px">ยินดีต้อนรับ</div>
-            <div v-if="userLoaded" style="text-align: center; font-size: 16px">
+            <div style="text-align: center; font-size: 16px">
               คุณ {{ user.username }}
             </div>
-            <div v-if="userLoaded" style="text-align: center; font-size: 16px">
+            <div style="text-align: center; font-size: 16px">
               ชื่อ {{ user.name }}
             </div>
-            <div v-if="userLoaded" style="text-align: center; font-size: 16px">
+            <div style="text-align: center; font-size: 16px">
               อีเมล {{ user.email }}
             </div>
           </q-card>
@@ -29,19 +29,19 @@
                 <div style="font-size: 25px; padding: 15px">ข้อมูลส่วนตัว</div>
               </div>
               <div class="col-md-4" style="padding: 15px">
-                <div v-if="userLoaded" style="font-size: 16px" class="infotext">
+                <div style="font-size: 16px" class="infotext">
                   คุณ {{ user.username }}
                 </div>
-                <div v-if="userLoaded" style="font-size: 16px" class="infotext">
+                <div style="font-size: 16px" class="infotext">
                   ชื่อ {{ user.name }}
                 </div>
-                <div v-if="userLoaded" style="font-size: 16px" class="infotext">
+                <div style="font-size: 16px" class="infotext">
                   อีเมล {{ user.email }}
                 </div>
-                <div v-if="userLoaded" style="font-size: 16px" class="infotext">
+                <div style="font-size: 16px" class="infotext">
                   ที่อยู่ในการจัดส่ง {{ user.address }}
                 </div>
-                <div v-if="userLoaded" style="font-size: 16px" class="infotext">
+                <div style="font-size: 16px" class="infotext">
                   เบอร์โทรศัพท์ {{ user.phone_number }}
                 </div>
                 <div
@@ -65,7 +65,7 @@
               </div>
               <div class="col-md-6" style="padding: 15px">
                 <div style="display: flex; justify-content: center">
-                  <div v-if="userLoaded">
+                  <div>
                     <q-img
                       :src="user.profileimg"
                       style="height: 250px; width: 250px; border-radius: 50%"
@@ -110,7 +110,7 @@
         <div style="margin-top: 20px">
           <q-card class="my-card" bordered>
             <div style="font-size: 25px; padding: 15px">สินค้าที่ชื่นชอบ</div>
-            <div v-if="favoritesLoaded" class="row">
+            <div class="row">
               <div
                 v-for="favorite in favorites"
                 :key="favorite.ProductID"
@@ -150,10 +150,6 @@
                   </q-card-actions>
                 </q-card>
               </div>
-            </div>
-            <div v-else>
-              <q-spinner size="30px" />
-              กำลังโหลด...
             </div>
           </q-card>
         </div>
@@ -229,7 +225,10 @@ export default {
             `http://localhost:3000/user/${userId}`
           );
           user.value = response.data;
-          Object.assign(editUser.value, response.data);
+          if (!user.value.profileimg) {
+            user.value.profileimg = "/path/to/default/image.png"; // กำหนดรูปภาพเริ่มต้น
+          }
+          Object.assign(editUser.value, user.value);
           userLoaded.value = true;
 
           // Fetch favorite products
@@ -284,10 +283,10 @@ export default {
     const submitEdit = async () => {
       try {
         const updatedData = {
-          name: editUser.value.name,
-          address: editUser.value.address,
-          phone_number: editUser.value.phone_number,
-          profileimg: editUser.value.profileimg,
+          name: editUser.value.name || "",
+          address: editUser.value.address || "",
+          phone_number: editUser.value.phone_number || "",
+          profileimg: editUser.value.profileimg || "/path/to/default/image.png",
         };
 
         console.log("Sending updated data:", updatedData);
