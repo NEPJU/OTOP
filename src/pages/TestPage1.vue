@@ -104,6 +104,16 @@
                       @change="handleImageChange"
                       class="upload-input"
                     />
+
+                    <!-- แสดงภาพตัวอย่างก่อนอัพโหลด -->
+                    <div v-if="imagePreview" class="preview-container">
+                      <h5>รูปภาพที่จะอัพโหลด:</h5>
+                      <img
+                        :src="imagePreview"
+                        alt="Preview Image"
+                        class="preview-image"
+                      />
+                    </div>
                   </div>
 
                   <div v-else>
@@ -116,8 +126,8 @@
                   </div>
 
                   <img
-                    :src="imageUrl"
-                    v-if="imageUrl"
+                    :src="order.imageUrl"
+                    v-if="order.imageUrl"
                     class="preview-image"
                     alt="Uploaded Image"
                   />
@@ -249,7 +259,13 @@
                     </li>
                   </ul>
                   <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-
+                  <div class="payment-image-container">
+                    <img
+                      :src="order.payment_image_base64"
+                      class="payment-image"
+                      alt="Payment Image"
+                    />
+                  </div>
                   <!-- Timeline for Shipped Status -->
                   <div v-if="order.status === 'Shipped'">
                     <q-timeline color="secondary" layout="dense">
@@ -347,6 +363,13 @@
 
                   <!-- Timeline for Delivered Status -->
                   <div v-if="order.status === 'Delivered'">
+                    <div class="payment-image-container">
+                      <img
+                        :src="order.payment_image_base64"
+                        class="payment-image"
+                        alt="Payment Image"
+                      />
+                    </div>
                     <q-timeline color="secondary" layout="dense">
                       <q-timeline-entry
                         color="green"
@@ -407,8 +430,8 @@ export default {
       deliveredOrdersVisible: false,
       error: false,
       errorMessage: "",
-      imageUrl: "",
-      imageName: "",
+      imageFile: null, // เก็บไฟล์ภาพ
+      imagePreview: "", // เก็บ Base64 ของภาพสำหรับแสดงในหน้าเว็บ
     };
   },
   computed: {
@@ -439,6 +462,7 @@ export default {
           showDetails: false,
           orderItems: [],
           trackingNumber: order.tracking_number || "",
+          imageUrl: "", // To store uploaded image URL
         }));
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -491,25 +515,64 @@ export default {
         this.fetchOrders();
       }
     },
+
+    async markAsShipped(order) {
+      if (!this.imagePreview) {
+        Swal.fire({
+          icon: "warning",
+          title: "กรุณาอัพโหลดรูปภาพ",
+          text: "คุณต้องอัพโหลดรูปภาพก่อนชำระเงิน",
+        });
+        return;
+      }
+
+      try {
+        console.log("Sending image data:", this.imagePreview); // Debugging line
+
+        await axios.put(
+          `http://localhost:3000/orders/${order.order_id}/status`,
+          {
+            status: "Waiting",
+            payment_image_base64: this.imagePreview, // Send the preview image as base64 string
+          }
+        );
+        order.status = "Waiting";
+        Swal.fire({
+          icon: "success",
+          title: "สำเร็จ",
+          text: "สถานะได้ถูกเปลี่ยนเป็น Waiting และรูปภาพถูกบันทึกเรียบร้อย",
+        });
+      } catch (error) {
+        console.error("Error updating order status and saving image:", error);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: "ไม่สามารถเปลี่ยนสถานะได้",
+        });
+      }
+    },
+
     async markAsDelivered(order) {
       try {
+        // สร้าง payload ที่มีเฉพาะสถานะเท่านั้น
         const payload = {
           status: "Delivered",
         };
 
+        // เรียก API เพื่ออัปเดตสถานะของออเดอร์
         await axios.put(
           `http://localhost:3000/orders/${order.order_id}/status`,
           payload
         );
 
-        order.status = "Delivered"; // Update the local status to reflect the change
+        // อัปเดตสถานะของออเดอร์ในฝั่งของ client
+        order.status = "Delivered"; // Update the local status only
+
         Swal.fire({
           icon: "success",
           title: "สำเร็จ",
           text: "สถานะได้ถูกเปลี่ยนเป็น Delivered",
         });
-
-        this.fetchOrders(); // Refresh the orders list
       } catch (error) {
         console.error("Error marking order as delivered:", error);
         Swal.fire({
@@ -519,12 +582,16 @@ export default {
         });
       }
     },
+
     handleImageChange(event) {
       const file = event.target.files[0];
       if (file) {
+        this.imageFile = file; // Store the file object for later use
+
+        // สร้างภาพตัวอย่าง
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.imageUrl = e.target.result;
+          this.imagePreview = e.target.result;
         };
         reader.readAsDataURL(file);
       }
@@ -596,6 +663,8 @@ export default {
 .preview-image {
   display: block;
   margin-top: 10px;
+  width: 100%;
+  max-width: 450px;
 }
 .center-btn {
   display: flex;
@@ -610,5 +679,9 @@ export default {
   max-width: 450px;
   display: block;
   margin: 20px auto;
+}
+.preview-container {
+  margin-top: 10px;
+  text-align: center;
 }
 </style>

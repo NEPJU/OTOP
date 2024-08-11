@@ -17,6 +17,12 @@
               @click="filterOrders('Shipped')"
               label="การส่งสินค้า"
             />
+            <q-btn
+              class="btn-box"
+              color="brown-6"
+              @click="filterOrders('Delivered')"
+              label="จัดส่งสำเร็จ"
+            />
           </div>
         </div>
         <div v-if="loading" class="loading-spinner">
@@ -40,7 +46,6 @@
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
                     <p>สถานะ : {{ order.status }}</p>
-                    <!-- Display Tracking Number -->
                     <p v-if="order.trackingNumber">
                       Tracking Number: {{ order.trackingNumber }}
                     </p>
@@ -83,8 +88,12 @@
                     </q-btn>
                   </div>
 
-                  <!-- Timeline for Shipped Status -->
-                  <div v-if="order.status === 'Shipped'">
+                  <!-- Timeline for Shipped and Delivered Status -->
+                  <div
+                    v-if="
+                      order.status === 'Shipped' || order.status === 'Delivered'
+                    "
+                  >
                     <q-timeline color="secondary" layout="dense">
                       <q-timeline-entry
                         color="green"
@@ -99,8 +108,10 @@
                             v-model="order.trackingNumber"
                             placeholder="กรอกเลข Tracking"
                             outlined
+                            :readonly="order.status === 'Delivered'"
                           />
                           <q-btn
+                            v-if="order.status === 'Shipped'"
                             @click="confirmPayment(order)"
                             color="green"
                             label="บันทึก Tracking"
@@ -108,10 +119,11 @@
                         </div>
                       </q-timeline-entry>
                       <q-timeline-entry
+                        v-if="order.status === 'Delivered'"
                         color="orange"
                         icon="check_circle"
-                        title="ยืนยันการได้รับของ"
-                        subtitle="ลูกค้าได้ยืนยันการได้รับสินค้าแล้ว"
+                        title="จัดส่งสำเร็จ"
+                        subtitle="ลูกค้าได้รับสินค้าแล้ว"
                       />
                     </q-timeline>
                   </div>
@@ -160,8 +172,8 @@ export default {
           ...order,
           order_date: format(new Date(order.order_date), "dd MMMM yyyy"),
           showDetails: false,
-          orderItems: [], // Initialize orderItems as an empty array
-          trackingNumber: order.tracking_number || "", // Add tracking number as an empty field
+          orderItems: [],
+          trackingNumber: order.tracking_number || "",
         }));
         this.filterOrders("Waiting"); // Default to showing Waiting orders
       } catch (error) {
@@ -180,7 +192,6 @@ export default {
     async toggleOrderDetails(order) {
       order.showDetails = !order.showDetails;
       if (order.showDetails && order.orderItems.length === 0) {
-        // Fetch order items if not already loaded
         try {
           const response = await axios.get(
             `http://localhost:3000/order-items/${order.order_id}`
@@ -202,7 +213,6 @@ export default {
 
         if (order.status === "Waiting") {
           payload = { status: "Shipped" };
-          console.log("Sending payload:", payload);
           const response = await axios.put(
             `http://localhost:3000/orders/${order.order_id}/confirm-payment`,
             payload
@@ -215,12 +225,11 @@ export default {
           });
         } else if (order.status === "Shipped" && order.trackingNumber) {
           payload = { tracking_number: order.trackingNumber };
-          console.log("Sending tracking number:", payload);
           const response = await axios.put(
             `http://localhost:3000/orders/${order.order_id}/add-tracking`,
             payload
           );
-          order.trackingNumber = payload.tracking_number; // Update the tracking number locally
+          order.trackingNumber = payload.tracking_number;
           Swal.fire({
             icon: "success",
             title: "สำเร็จ",
@@ -230,10 +239,6 @@ export default {
 
         this.filterOrders(order.status);
       } catch (error) {
-        console.error(
-          "Error updating order status or tracking number:",
-          error.response || error
-        );
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาด",
