@@ -17,10 +17,16 @@
               <div class="summary-section">
                 <h2>Total Sales</h2>
                 <q-select
-                  v-model="totalSalesPeriod"
+                  v-model="selectedPeriod"
                   :options="periodOptions"
                   label="Select Period"
-                  @input="fetchTotalSales"
+                  @input="fetchData"
+                />
+                <q-date
+                  v-if="selectedPeriod === 'custom'"
+                  v-model="selectedDateRange"
+                  range
+                  @input="fetchData"
                 />
                 <p>{{ formatCurrency(totalSales) }}</p>
               </div>
@@ -67,12 +73,6 @@
             <q-card-section>
               <div class="summary-section">
                 <h2>Sales Over Time</h2>
-                <q-select
-                  v-model="selectedPeriod"
-                  :options="periodOptions"
-                  label="Select Period"
-                  @input="fetchData"
-                />
                 <canvas id="salesChart"></canvas>
               </div>
             </q-card-section>
@@ -87,7 +87,7 @@
 import axios from "axios";
 import { Chart, registerables } from "chart.js";
 
-// Register all components
+// Register all Chart.js components
 Chart.register(...registerables);
 
 export default {
@@ -101,12 +101,16 @@ export default {
       salesByCategory: [],
       salesOverTime: [],
       salesChart: null,
-      totalSalesPeriod: "today", // Default period for total sales
-      selectedPeriod: "today", // Default period for the sales chart
+      selectedPeriod: "today", // Default period
+      selectedDateRange: {
+        from: "",
+        to: "",
+      },
       periodOptions: [
         { label: "Today", value: "today" },
         { label: "This Month", value: "month" },
         { label: "This Year", value: "year" },
+        { label: "Custom Date Range", value: "custom" },
       ],
     };
   },
@@ -144,33 +148,27 @@ export default {
     },
   },
   methods: {
-    async fetchTotalSales() {
-      try {
-        const response = await axios.get(
-          `http://localhost:3000/dashboard/total-sales?period=${this.totalSalesPeriod}`
-        );
-
-        console.log("Total Sales Data:", response.data); // Log the data for debugging
-        this.totalSales = response.data.total_sales;
-      } catch (error) {
-        console.error("Error fetching total sales:", error);
-        this.error = true;
-        this.errorMessage = "Unable to load total sales data.";
-      }
-    },
     async fetchData() {
+      let queryParams = `period=${this.selectedPeriod}`;
+
+      if (
+        this.selectedPeriod === "custom" &&
+        this.selectedDateRange.from &&
+        this.selectedDateRange.to
+      ) {
+        queryParams = `from=${this.selectedDateRange.from}&to=${this.selectedDateRange.to}`;
+      }
+
       try {
         const response = await axios.get(
-          `http://localhost:3000/dashboard/sales-summary?period=${this.selectedPeriod}`
+          `http://localhost:3000/dashboard/sales-summary?${queryParams}`
         );
 
-        console.log("Sales Summary Data:", response.data); // Log the data for debugging
-
+        this.totalSales = response.data.total_sales;
         this.topProducts = response.data.top_products;
         this.salesByCategory = response.data.sales_by_category;
         this.salesOverTime = response.data.sales_over_time;
 
-        console.log(this.salesOverTime); // Log the sales over time data
         this.renderSalesChart();
       } catch (error) {
         console.error("Error fetching sales summary:", error);
@@ -217,7 +215,6 @@ export default {
     },
   },
   created() {
-    this.fetchTotalSales(); // Fetch total sales on component creation
     this.fetchData();
   },
 };
