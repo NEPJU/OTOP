@@ -23,6 +23,12 @@
               @click="filterOrders('Delivered')"
               label="จัดส่งสำเร็จ"
             />
+            <q-btn
+              class="btn-box"
+              color="brown-6"
+              @click="filterOrders('Cancelled')"
+              label="สินค้าที่ถูกยกเลิก"
+            />
           </div>
         </div>
         <div v-if="loading" class="loading-spinner">
@@ -85,6 +91,9 @@
                   <div class="center-btn" v-if="order.status === 'Waiting'">
                     <q-btn @click="confirmPayment(order)" color="green">
                       ยืนยันการชำระเงิน
+                    </q-btn>
+                    <q-btn @click="cancelOrder(order)" color="red">
+                      ยกเลิกการสั่งซื้อ
                     </q-btn>
                   </div>
 
@@ -243,6 +252,28 @@ export default {
           icon: "error",
           title: "เกิดข้อผิดพลาด",
           text: "ไม่สามารถเปลี่ยนสถานะหรือเพิ่มเลข Tracking ได้",
+        });
+      }
+    },
+    async cancelOrder(order) {
+      try {
+        const payload = { status: "Cancelled" };
+        await axios.put(
+          `http://localhost:3000/orders/${order.order_id}/cancel-order`,
+          payload
+        );
+        order.status = "Cancelled";
+        Swal.fire({
+          icon: "success",
+          title: "สำเร็จ",
+          text: "ออเดอร์ได้ถูกยกเลิกเรียบร้อยแล้ว",
+        });
+        this.filterOrders(order.status);
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: "ไม่สามารถยกเลิกออเดอร์ได้",
         });
       }
     },

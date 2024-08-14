@@ -23,6 +23,12 @@
               @click="toggleDeliveredOrdersVisibility"
               label="ได้รับของแล้ว"
             />
+            <q-btn
+              class="btn-box"
+              color="brown-6"
+              @click="toggleCancelledOrdersVisibility"
+              label="ถูกยกเลิกแล้ว"
+            />
           </div>
         </div>
         <div v-if="loading" class="loading-spinner">
@@ -131,9 +137,21 @@
                     class="preview-image"
                     alt="Uploaded Image"
                   />
-                  <div class="center-btn" v-if="order.status === 'Pending'">
-                    <q-btn @click="markAsShipped(order)" color="green">
+                  <div
+                    class="center-btn"
+                    v-if="
+                      order.status === 'Pending' || order.status === 'Waiting'
+                    "
+                  >
+                    <q-btn
+                      @click="markAsShipped(order)"
+                      color="green"
+                      v-if="order.status === 'Pending'"
+                    >
                       ชำระเงิน
+                    </q-btn>
+                    <q-btn @click="cancelOrder(order)" color="red">
+                      ยกเลิกการสั่งสินค้า
                     </q-btn>
                   </div>
 
@@ -305,6 +323,66 @@
             </q-col>
           </q-row>
         </div>
+        <div v-if="cancelledOrdersVisible && !loading">
+          <q-row>
+            <q-col
+              v-for="order in cancelledOrders"
+              :key="order.order_id"
+              cols="12"
+              sm="6"
+            >
+              <q-card class="order-card">
+                <div class="row card-header">
+                  <div class="col-6">
+                    <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
+                    <p>วันที่ : {{ order.order_date }}</p>
+                    <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+                    <p>สถานะ : {{ order.status }}</p>
+                  </div>
+                  <div class="col-6">
+                    <q-btn
+                      @click="toggleOrderDetails(order)"
+                      color="red"
+                      :label="
+                        order.showDetails ? 'ซ่อนรายละเอียด' : 'ดูรายละเอียด'
+                      "
+                      class="details-btn"
+                    />
+                  </div>
+                </div>
+                <q-card-section v-show="order.showDetails">
+                  <h5>รายการสินค้า:</h5>
+                  <ul>
+                    <li
+                      v-for="item in order.orderItems"
+                      :key="item.order_item_id"
+                      class="order-item"
+                    >
+                      <div class="row">
+                        <div class="col">
+                          <p>ผลิตภัณฑ์ : {{ item.product_name }}</p>
+                          <p>คำอธิบาย : {{ item.description }}</p>
+                          <p>ราคา : {{ item.product_price }} บาท</p>
+                          <p>จำนวน: {{ item.quantity }}</p>
+                        </div>
+                        <div class="col">
+                          <img
+                            :src="item.image_base64"
+                            alt="Product Image"
+                            class="product-image"
+                          />
+                        </div>
+                      </div>
+                      <hr />
+                      <br />
+                    </li>
+                  </ul>
+                  <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+                </q-card-section>
+              </q-card>
+            </q-col>
+          </q-row>
+        </div>
         <div v-if="deliveredOrdersVisible && !loading">
           <q-row>
             <q-col
@@ -446,6 +524,9 @@ export default {
     deliveredOrders() {
       return this.orders.filter((order) => order.status === "Delivered");
     },
+    cancelledOrders() {
+      return this.orders.filter((order) => order.status === "Cancelled");
+    },
   },
   methods: {
     async fetchOrders() {
@@ -515,6 +596,15 @@ export default {
         this.fetchOrders();
       }
     },
+    toggleCancelledOrdersVisibility() {
+      this.cancelledOrdersVisible = !this.cancelledOrdersVisible;
+      this.ordersVisible = false;
+      this.shippedOrdersVisible = false;
+      this.deliveredOrdersVisible = false;
+      if (this.cancelledOrdersVisible && this.orders.length === 0) {
+        this.fetchOrders();
+      }
+    },
 
     async markAsShipped(order) {
       if (!this.imagePreview) {
@@ -548,6 +638,36 @@ export default {
           icon: "error",
           title: "เกิดข้อผิดพลาด",
           text: "ไม่สามารถเปลี่ยนสถานะได้",
+        });
+      }
+    },
+    async cancelOrder(order) {
+      try {
+        // สร้าง payload ที่มีเฉพาะสถานะเท่านั้น
+        const payload = {
+          status: "Cancelled",
+        };
+
+        // เรียก API เพื่ออัปเดตสถานะของออเดอร์
+        await axios.put(
+          `http://localhost:3000/orders/${order.order_id}/status`,
+          payload
+        );
+
+        // อัปเดตสถานะของออเดอร์ในฝั่งของ client
+        order.status = "Cancelled"; // Update the local status only
+
+        Swal.fire({
+          icon: "success",
+          title: "สำเร็จ",
+          text: "สถานะได้ถูกเปลี่ยนเป็น Cancelled",
+        });
+      } catch (error) {
+        console.error("Error cancelling the order:", error);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: "ไม่สามารถยกเลิกการสั่งซื้อได้",
         });
       }
     },
