@@ -1,146 +1,145 @@
 <template>
-  <div class="dashboard-container q-pa-md">
-    <q-page class="q-pa-md">
-      <q-card class="q-mb-md">
-        <q-card-section>
-          <div class="summary-header">
-            <h1>Sales Dashboard</h1>
-            <q-icon name="trending_up" size="32px" color="brown-6" />
+  <div class="row">
+    <div class="col-1 bgside"></div>
+    <div class="col-10 bgcenter">
+      <q-card-section>
+        <div>
+          <h1>แดชบอร์ดการขาย</h1>
+          <q-icon name="trending_up" size="32px" color="brown-6" />
+        </div>
+      </q-card-section>
+      <q-card>
+        <div class="row">
+          <div class="col cl">
+            <div>
+              <h4>ยอดขายวันนี้</h4>
+              <p>{{ formatCurrency(totalSalesToday) }}</p>
+              <q-table
+                dense
+                :rows="salesTodayProducts"
+                :columns="salesProductColumns"
+                row-key="product_name"
+              ></q-table>
+            </div>
           </div>
-        </q-card-section>
+          <div class="col cl">
+            <div>
+              <h4>ยอดขายอาทิตย์นี้</h4>
+              <p>{{ formatCurrency(totalSalesWeek) }}</p>
+              <q-table
+                dense
+                :rows="salesWeekProducts"
+                :columns="salesProductColumns"
+                row-key="product_name"
+              ></q-table>
+            </div>
+          </div>
+          <div class="col cl">
+            <div>
+              <h4>ยอดขายเดือนนี้</h4>
+              <p>{{ formatCurrency(totalSalesMonth) }}</p>
+              <q-table
+                dense
+                :rows="salesWeekProducts"
+                :columns="salesProductColumns"
+                row-key="product_name"
+              ></q-table>
+            </div>
+          </div>
+          <div class="col cl">
+            <div>
+              <h4>ยอดขายปีนี้</h4>
+              <p>{{ formatCurrency(totalSalesYear) }}</p>
+              <q-table
+                dense
+                :rows="salesYearProducts"
+                :columns="salesProductColumns"
+                row-key="product_name"
+              ></q-table>
+            </div>
+          </div>
+        </div>
       </q-card>
+      <h2>แผนภูมิแท่งแสดงยอดการขาย</h2>
 
-      <div class="row">
-        <q-col cols="12" md="6">
-          <q-card class="q-mb-md">
-            <q-card-section>
-              <div class="summary-section">
-                <h2>Total Sales</h2>
-                <q-select
-                  v-model="selectedPeriod"
-                  :options="periodOptions"
-                  label="Select Period"
-                  @input="fetchData"
-                />
-                <q-date
-                  v-if="selectedPeriod === 'custom'"
-                  v-model="selectedDateRange"
-                  range
-                  @input="fetchData"
-                />
-                <p>{{ formatCurrency(totalSales) }}</p>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-col>
-
-        <q-col cols="12" md="6">
-          <q-card class="q-mb-md">
-            <q-card-section>
-              <div class="summary-section">
-                <h2>Top Selling Products</h2>
-                <q-table
-                  dense
-                  :rows="topProducts"
-                  :columns="topProductColumns"
-                  row-key="product_name"
-                ></q-table>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-col>
-      </div>
-
-      <div class="row">
-        <q-col cols="12" md="6">
-          <q-card class="q-mb-md">
-            <q-card-section>
-              <div class="summary-section">
-                <h2>Sales by Category</h2>
-                <q-table
-                  dense
-                  :rows="salesByCategory"
-                  :columns="categoryColumns"
-                  row-key="product_category"
-                ></q-table>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-col>
-
-        <q-col cols="12" md="6">
-          <q-card class="q-mb-md">
-            <q-card-section>
-              <div class="summary-section">
-                <h2>Sales Over Time</h2>
-                <canvas id="salesChart"></canvas>
-              </div>
-            </q-card-section>
-          </q-card>
-        </q-col>
-      </div>
-    </q-page>
+      <q-card>
+        <div class="row">
+          <div class="col">
+            <div>
+              <h4>ยอดขายวันนี้</h4>
+              <p>{{ formatCurrency(totalSalesToday) }}</p>
+              <canvas id="salesTodayChart"></canvas>
+            </div>
+          </div>
+          <div class="col">
+            <div>
+              <h4>ยอดขายอาทิตย์นี้</h4>
+              <p>{{ formatCurrency(totalSalesWeek) }}</p>
+              <canvas id="salesWeekChart"></canvas>
+            </div>
+          </div>
+          <div class="col">
+            <div>
+              <h4>ยอดขายเดือนนี้</h4>
+              <p>{{ formatCurrency(totalSalesMonth) }}</p>
+              <canvas id="salesMonthChart"></canvas>
+            </div>
+          </div>
+          <div class="col">
+            <div>
+              <h4>ยอดขายปีนี้</h4>
+              <p>{{ formatCurrency(totalSalesYear) }}</p>
+              <canvas id="salesYearChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </q-card>
+    </div>
+    <div class="col-1 bgside"></div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import { Chart, registerables } from "chart.js";
+import "chartjs-adapter-date-fns";
 
-// Register all Chart.js components
+// ลงทะเบียน Chart.js components ทั้งหมด
 Chart.register(...registerables);
 
 export default {
   data() {
     return {
-      loading: true,
-      error: false,
-      errorMessage: "",
-      totalSales: 0,
-      topProducts: [],
-      salesByCategory: [],
-      salesOverTime: [],
-      salesChart: null,
-      selectedPeriod: "today", // Default period
-      selectedDateRange: {
-        from: "",
-        to: "",
-      },
-      periodOptions: [
-        { label: "Today", value: "today" },
-        { label: "This Month", value: "month" },
-        { label: "This Year", value: "year" },
-        { label: "Custom Date Range", value: "custom" },
-      ],
+      totalSalesToday: 0,
+      totalSalesWeek: 0, // ยอดขายของอาทิตย์นี้
+      totalSalesMonth: 0,
+      totalSalesYear: 0,
+      salesTodayData: [],
+      salesWeekData: [], // ข้อมูลยอดขายของอาทิตย์นี้
+      salesTodayProducts: [],
+      salesWeekProducts: [], // รายการสินค้าที่ขายได้ในอาทิตย์นี้
+      salesMonthData: [],
+      salesMonthProducts: [],
+      salesYearData: [],
+      salesYearProducts: [],
+      salesTodayChart: null,
+      salesWeekChart: null, // Chart สำหรับยอดขายของอาทิตย์นี้
+      salesMonthChart: null,
+      salesYearChart: null,
     };
   },
   computed: {
-    topProductColumns() {
+    salesProductColumns() {
       return [
-        { name: "product_name", label: "Product Name", field: "product_name" },
+        { name: "product_name", label: "ชื่อสินค้า", field: "product_name" },
         {
           name: "total_quantity",
-          label: "Quantity Sold",
+          label: "จำนวนที่ขายได้",
           field: "total_quantity",
         },
         {
           name: "total_revenue",
-          label: "Total Revenue",
-          field: "total_revenue",
-          format: this.formatCurrency,
-        },
-      ];
-    },
-    categoryColumns() {
-      return [
-        {
-          name: "product_category",
-          label: "Category",
-          field: "product_category",
-        },
-        {
-          name: "total_revenue",
-          label: "Total Revenue",
+          label: "รายได้รวม",
           field: "total_revenue",
           format: this.formatCurrency,
         },
@@ -149,55 +148,61 @@ export default {
   },
   methods: {
     async fetchData() {
-      let queryParams = `period=${this.selectedPeriod}`;
-
-      if (
-        this.selectedPeriod === "custom" &&
-        this.selectedDateRange.from &&
-        this.selectedDateRange.to
-      ) {
-        queryParams = `from=${this.selectedDateRange.from}&to=${this.selectedDateRange.to}`;
-      }
-
       try {
-        const response = await axios.get(
-          `http://localhost:3000/dashboard/sales-summary?${queryParams}`
+        // ดึงข้อมูลยอดขายวันนี้
+        let response = await axios.get(
+          "http://localhost:3000/dashboard/sales-summary?period=today"
         );
+        this.totalSalesToday = response.data.total_sales || 0;
+        this.salesTodayData = response.data.sales_over_time || [];
+        this.salesTodayProducts = response.data.top_products || [];
+        this.renderSalesTodayChart();
 
-        this.totalSales = response.data.total_sales;
-        this.topProducts = response.data.top_products;
-        this.salesByCategory = response.data.sales_by_category;
-        this.salesOverTime = response.data.sales_over_time;
+        // ดึงข้อมูลยอดขายของอาทิตย์นี้
+        response = await axios.get(
+          "http://localhost:3000/dashboard/sales-summary?period=week"
+        );
+        this.totalSalesWeek = response.data.total_sales || 0;
+        this.salesWeekData = response.data.sales_over_time || [];
+        this.salesWeekProducts = response.data.top_products || [];
+        this.renderSalesWeekChart();
 
-        this.renderSalesChart();
+        // ดึงข้อมูลยอดขายเดือนนี้
+        response = await axios.get(
+          "http://localhost:3000/dashboard/sales-summary?period=month"
+        );
+        this.totalSalesMonth = response.data.total_sales || 0;
+        this.salesMonthData = response.data.sales_over_time || [];
+        this.salesMonthProducts = response.data.top_products || [];
+        this.renderSalesMonthChart();
+
+        // ดึงข้อมูลยอดขายปีนี้
+        response = await axios.get(
+          "http://localhost:3000/dashboard/sales-summary?period=year"
+        );
+        this.totalSalesYear = response.data.total_sales || 0;
+        this.salesYearData = response.data.sales_over_time || [];
+        this.salesYearProducts = response.data.top_products || [];
+        this.renderSalesYearChart();
       } catch (error) {
-        console.error("Error fetching sales summary:", error);
-        this.error = true;
-        this.errorMessage = "Unable to load sales summary data.";
-      } finally {
-        this.loading = false;
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลยอดขาย:", error);
       }
     },
-    formatCurrency(value) {
-      return new Intl.NumberFormat("th-TH", {
-        style: "currency",
-        currency: "THB",
-      }).format(value);
-    },
-    renderSalesChart() {
-      const ctx = document.getElementById("salesChart").getContext("2d");
-      if (this.salesChart) {
-        this.salesChart.destroy(); // Destroy the existing chart instance
+
+    renderSalesTodayChart() {
+      const ctx = document.getElementById("salesTodayChart").getContext("2d");
+      if (this.salesTodayChart) {
+        this.salesTodayChart.destroy();
       }
 
-      this.salesChart = new Chart(ctx, {
+      this.salesTodayChart = new Chart(ctx, {
         type: "bar",
         data: {
-          labels: this.salesOverTime.map((sale) => sale.sale_date),
+          labels: this.salesTodayData.map((sale) => sale.sale_date),
           datasets: [
             {
-              label: "Sales Revenue",
-              data: this.salesOverTime.map((sale) => sale.total_revenue),
+              label: "รายได้จากการขายวันนี้",
+              data: this.salesTodayData.map((sale) => sale.total_revenue),
               backgroundColor: "rgba(75, 192, 192, 0.2)",
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 1,
@@ -206,12 +211,149 @@ export default {
         },
         options: {
           scales: {
+            x: {
+              type: "time",
+              time: {
+                unit: "day",
+                tooltipFormat: "yyyy-MM-dd",
+                displayFormats: {
+                  day: "yyyy-MM-dd",
+                },
+              },
+            },
             y: {
               beginAtZero: true,
             },
           },
         },
       });
+    },
+
+    renderSalesWeekChart() {
+      const ctx = document.getElementById("salesWeekChart").getContext("2d");
+      if (this.salesWeekChart) {
+        this.salesWeekChart.destroy();
+      }
+
+      this.salesWeekChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: this.salesWeekData.map((sale) => sale.sale_date),
+          datasets: [
+            {
+              label: "รายได้จากการขายอาทิตย์นี้",
+              data: this.salesWeekData.map((sale) => sale.total_revenue),
+              backgroundColor: "rgba(54, 162, 235, 0.2)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              type: "time",
+              time: {
+                unit: "day",
+                tooltipFormat: "yyyy-MM-dd",
+                displayFormats: {
+                  day: "yyyy-MM-dd",
+                },
+              },
+            },
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    },
+
+    renderSalesMonthChart() {
+      const ctx = document.getElementById("salesMonthChart").getContext("2d");
+      if (this.salesMonthChart) {
+        this.salesMonthChart.destroy();
+      }
+
+      this.salesMonthChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: this.salesMonthData.map((sale) => sale.sale_date),
+          datasets: [
+            {
+              label: "รายได้จากการขายเดือนนี้",
+              data: this.salesMonthData.map((sale) => sale.total_revenue),
+              backgroundColor: "rgba(153, 102, 255, 0.2)",
+              borderColor: "rgba(153, 102, 255, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              type: "time",
+              time: {
+                unit: "day",
+                tooltipFormat: "yyyy-MM-dd",
+                displayFormats: {
+                  day: "yyyy-MM-dd",
+                },
+              },
+            },
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    },
+
+    renderSalesYearChart() {
+      const ctx = document.getElementById("salesYearChart").getContext("2d");
+      if (this.salesYearChart) {
+        this.salesYearChart.destroy();
+      }
+
+      this.salesYearChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: this.salesYearData.map((sale) => sale.sale_date),
+          datasets: [
+            {
+              label: "รายได้จากการขายปีนี้",
+              data: this.salesYearData.map((sale) => sale.total_revenue),
+              backgroundColor: "rgba(255, 159, 64, 0.2)",
+              borderColor: "rgba(255, 159, 64, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            x: {
+              type: "time",
+              time: {
+                unit: "month",
+                tooltipFormat: "yyyy-MM",
+                displayFormats: {
+                  month: "yyyy-MM",
+                },
+              },
+            },
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    },
+
+    formatCurrency(value) {
+      return new Intl.NumberFormat("th-TH", {
+        style: "currency",
+        currency: "THB",
+      }).format(value);
     },
   },
   created() {
@@ -221,6 +363,17 @@ export default {
 </script>
 
 <style scoped>
+.container {
+  margin-top: 45px;
+}
+.bgside {
+  background-image: url("/src/assets/logo/bgside.png");
+}
+.bgcenter {
+  min-height: 100vh;
+  background-color: bisque;
+}
+
 .dashboard-container {
   padding: 20px;
 }
@@ -235,14 +388,8 @@ export default {
   text-align: center;
 }
 
-.summary-section h2 {
+.summary-section h4 {
   margin-bottom: 10px;
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
 }
 
 .q-card {
@@ -251,5 +398,9 @@ export default {
 
 .q-card-section {
   padding: 16px;
+}
+
+.cl {
+  padding: 10px;
 }
 </style>
