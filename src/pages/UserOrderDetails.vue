@@ -42,7 +42,7 @@
               v-for="order in cancelledOrders"
               :key="order.order_id"
               cols="12"
-              sm="6"
+              sm="12"
             >
               <q-card class="order-card">
                 <div class="row card-header">
@@ -65,32 +65,39 @@
                 </div>
                 <q-card-section v-show="order.showDetails">
                   <h5>รายการสินค้า:</h5>
-                  <ul>
-                    <li
-                      v-for="item in order.orderItems"
-                      :key="item.order_item_id"
-                      class="order-item"
-                    >
-                      <div class="row">
-                        <div class="col">
-                          <p>ผลิตภัณฑ์ : {{ item.product_name }}</p>
-                          <p>คำอธิบาย : {{ item.description }}</p>
-                          <p>ราคา : {{ item.product_price }} บาท</p>
-                          <p>จำนวน: {{ item.quantity }}</p>
-                        </div>
-                        <div class="col">
-                          <img
-                            :src="item.image_base64"
-                            alt="Product Image"
-                            class="product-image"
-                          />
-                        </div>
-                      </div>
-                      <hr />
-                      <br />
-                    </li>
-                  </ul>
-                  <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+                  <q-table
+                    :rows="order.orderItems"
+                    :columns="columns"
+                    row-key="order_item_id"
+                    flat
+                    bordered
+                    separator="cell"
+                  >
+                    <template v-slot:body-cell-image="props">
+                      <q-td>
+                        <img
+                          :src="props.row.image_base64"
+                          alt="Product Image"
+                          class="product-image"
+                        />
+                      </q-td>
+                    </template>
+                    <template v-slot:body-cell-product_name="props">
+                      <q-td>{{ props.row.product_name }}</q-td>
+                    </template>
+                    <template v-slot:body-cell-description="props">
+                      <q-td>{{ props.row.description }}</q-td>
+                    </template>
+                    <template v-slot:body-cell-product_price="props">
+                      <q-td>{{ props.row.product_price }} บาท</q-td>
+                    </template>
+                    <template v-slot:body-cell-quantity="props">
+                      <q-td>{{ props.row.quantity }}</q-td>
+                    </template>
+                  </q-table>
+                  <p class="total-amount">
+                    เงินรวมทั้งหมด : {{ order.total_amount }} บาท
+                  </p>
                 </q-card-section>
               </q-card>
             </q-col>
@@ -104,7 +111,7 @@
               v-for="order in filteredOrders"
               :key="order.order_id"
               cols="12"
-              sm="6"
+              sm="12"
             >
               <q-card class="order-card">
                 <div class="row card-header">
@@ -135,132 +142,39 @@
                 </div>
                 <q-card-section v-show="order.showDetails">
                   <h5>รายการสินค้า:</h5>
-                  <ul>
-                    <li
-                      v-for="item in order.orderItems"
-                      :key="item.order_item_id"
-                      class="order-item"
-                    >
-                      <div class="row">
-                        <div class="col">
-                          <p>ผลิตภัณฑ์ : {{ item.product_name }}</p>
-                          <p>คำอธิบาย : {{ item.description }}</p>
-                          <p>ราคา : {{ item.product_price }} บาท</p>
-                          <p>จำนวน: {{ item.quantity }}</p>
-                        </div>
-                        <div class="col">
-                          <img
-                            :src="item.image_base64"
-                            alt="Product Image"
-                            class="product-image"
-                          />
-                        </div>
-                      </div>
-                      <hr />
-                      <br />
-                    </li>
-                  </ul>
-                  <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-
-                  <!-- Payment Image or Upload Section -->
-                  <div v-if="order.status === 'Pending'">
-                    <label for="image-upload" class="upload-label">
-                      อัพโหลดใบเสร็จการชำระเงิน
-                    </label>
-                    <div class="qrcode-container">
-                      <img
-                        src="/src/assets/qrcodepromtpay.jpg"
-                        alt="QR Code"
-                        style="width: 450px"
-                      />
-                    </div>
-
-                    <input
-                      id="image-upload"
-                      type="file"
-                      accept="image/*"
-                      @change="handleImageChange"
-                      class="upload-input"
-                    />
-
-                    <!-- แสดงภาพตัวอย่างก่อนอัพโหลด -->
-                    <div v-if="imagePreview" class="preview-container">
-                      <h5>รูปภาพที่จะอัพโหลด:</h5>
-                      <img
-                        :src="imagePreview"
-                        alt="Preview Image"
-                        class="preview-image"
-                      />
-                    </div>
-                  </div>
-
-                  <div v-else>
-                    <h5>รูปภาพการชำระเงิน:</h5>
-                    <img
-                      :src="order.payment_image_base64"
-                      class="payment-image"
-                      alt="Payment Image"
-                    />
-                  </div>
-
-                  <img
-                    :src="order.imageUrl"
-                    v-if="order.imageUrl"
-                    class="preview-image"
-                    alt="Uploaded Image"
-                  />
-                  <div
-                    class="center-btn"
-                    v-if="
-                      order.status === 'Pending' || order.status === 'Waiting'
-                    "
+                  <q-table
+                    :rows="order.orderItems"
+                    :columns="columns"
+                    row-key="order_item_id"
+                    flat
+                    bordered
+                    separator="cell"
                   >
-                    <q-btn
-                      @click="markAsShipped(order)"
-                      color="green"
-                      v-if="order.status === 'Pending'"
-                    >
-                      ชำระเงิน
-                    </q-btn>
-                    <q-btn @click="cancelOrder(order)" color="red">
-                      ยกเลิกการสั่งสินค้า
-                    </q-btn>
-                  </div>
-
-                  <!-- Timeline for Shipped Status -->
-                  <div v-if="order.status === 'Shipped'">
-                    <q-timeline color="secondary" layout="dense">
-                      <q-timeline-entry
-                        color="green"
-                        icon="done"
-                        title="ชำระเงินสำเร็จ"
-                        subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
-                      />
-                      <q-timeline-entry
-                        color="blue"
-                        icon="local_shipping"
-                        subtitle="กำลังจัดส่งผลิตภัณฑ์"
-                      >
-                        <h6 style="margin-top: -5px">เลข Tracking</h6>
-                        <p style="margin-top: -15px">
-                          {{ order.trackingNumber }}
-                        </p>
-                      </q-timeline-entry>
-                      <q-timeline-entry
-                        color="orange"
-                        icon="check_circle"
-                        title="ยืนยันการได้รับของ"
-                        subtitle="ลูกค้าได้ยืนยันการได้รับสินค้าแล้ว"
-                      />
-                    </q-timeline>
-                    <div class="center-btn">
-                      <q-btn
-                        @click="markAsDelivered(order)"
-                        color="green"
-                        label="ยืนยันการได้รับสินค้า"
-                      />
-                    </div>
-                  </div>
+                    <template v-slot:body-cell-image="props">
+                      <q-td>
+                        <img
+                          :src="props.row.image_base64"
+                          alt="Product Image"
+                          class="product-image"
+                        />
+                      </q-td>
+                    </template>
+                    <template v-slot:body-cell-product_name="props">
+                      <q-td>{{ props.row.product_name }}</q-td>
+                    </template>
+                    <template v-slot:body-cell-description="props">
+                      <q-td>{{ props.row.description }}</q-td>
+                    </template>
+                    <template v-slot:body-cell-product_price="props">
+                      <q-td>{{ props.row.product_price }} บาท</q-td>
+                    </template>
+                    <template v-slot:body-cell-quantity="props">
+                      <q-td>{{ props.row.quantity }}</q-td>
+                    </template>
+                  </q-table>
+                  <p class="total-amount">
+                    เงินรวมทั้งหมด : {{ order.total_amount }} บาท
+                  </p>
                 </q-card-section>
               </q-card>
             </q-col>
@@ -272,7 +186,7 @@
               v-for="order in shippedOrders"
               :key="order.order_id"
               cols="12"
-              sm="6"
+              sm="12"
             >
               <q-card class="order-card">
                 <div class="row card-header">
@@ -297,72 +211,45 @@
                 </div>
                 <q-card-section v-show="order.showDetails">
                   <h5>รายการสินค้า:</h5>
-                  <ul>
-                    <li
-                      v-for="item in order.orderItems"
-                      :key="item.order_item_id"
-                      class="order-item"
-                    >
-                      <div class="row">
-                        <div class="col">
-                          <p>ผลิตภัณฑ์ : {{ item.product_name }}</p>
-                          <p>คำอธิบาย : {{ item.description }}</p>
-                          <p>ราคา : {{ item.product_price }} บาท</p>
-                          <p>จำนวน: {{ item.quantity }}</p>
-                        </div>
-                        <div class="col">
-                          <img
-                            :src="item.image_base64"
-                            alt="Product Image"
-                            class="product-image"
-                          />
-                        </div>
-                      </div>
-                      <hr />
-                      <br />
-                    </li>
-                  </ul>
-                  <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+                  <q-table
+                    :rows="order.orderItems"
+                    :columns="columns"
+                    row-key="order_item_id"
+                    flat
+                    bordered
+                    separator="cell"
+                  >
+                    <template v-slot:body-cell-image="props">
+                      <q-td>
+                        <img
+                          :src="props.row.image_base64"
+                          alt="Product Image"
+                          class="product-image"
+                        />
+                      </q-td>
+                    </template>
+                    <template v-slot:body-cell-product_name="props">
+                      <q-td>{{ props.row.product_name }}</q-td>
+                    </template>
+                    <template v-slot:body-cell-description="props">
+                      <q-td>{{ props.row.description }}</q-td>
+                    </template>
+                    <template v-slot:body-cell-product_price="props">
+                      <q-td>{{ props.row.product_price }} บาท</q-td>
+                    </template>
+                    <template v-slot:body-cell-quantity="props">
+                      <q-td>{{ props.row.quantity }}</q-td>
+                    </template>
+                  </q-table>
+                  <p class="total-amount">
+                    เงินรวมทั้งหมด : {{ order.total_amount }} บาท
+                  </p>
                   <div class="payment-image-container">
                     <img
                       :src="order.payment_image_base64"
                       class="payment-image"
                       alt="Payment Image"
                     />
-                  </div>
-                  <!-- Timeline for Shipped Status -->
-                  <div v-if="order.status === 'Shipped'">
-                    <q-timeline color="secondary" layout="dense">
-                      <q-timeline-entry
-                        color="green"
-                        icon="done"
-                        title="ชำระเงินสำเร็จ"
-                        subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
-                      />
-                      <q-timeline-entry
-                        color="blue"
-                        icon="local_shipping"
-                        subtitle="กำลังจัดส่งผลิตภัณฑ์"
-                      >
-                        <h6 style="margin-top: -5px">เลข Tracking</h6>
-                        <p style="margin-top: -15px">
-                          {{ order.trackingNumber }}
-                        </p>
-                      </q-timeline-entry>
-                      <q-timeline-entry
-                        color="orange"
-                        icon="check_circle"
-                        title="ยืนยันการได้รับของ"
-                        subtitle="ลูกค้าได้ยืนยันการได้รับสินค้าแล้ว"
-                      />
-                    </q-timeline>
-                    <div class="center-btn">
-                      <q-btn
-                        @click="markAsDelivered(order)"
-                        color="green"
-                        label="ยืนยันการได้รับสินค้า"
-                      />
-                    </div>
                   </div>
                 </q-card-section>
               </q-card>
@@ -375,7 +262,7 @@
               v-for="order in deliveredOrders"
               :key="order.order_id"
               cols="12"
-              sm="6"
+              sm="12"
             >
               <q-card class="order-card">
                 <div class="row card-header">
@@ -398,32 +285,39 @@
                 </div>
                 <q-card-section v-show="order.showDetails">
                   <h5>รายการสินค้า:</h5>
-                  <ul>
-                    <li
-                      v-for="item in order.orderItems"
-                      :key="item.order_item_id"
-                      class="order-item"
-                    >
-                      <div class="row">
-                        <div class="col">
-                          <p>ผลิตภัณฑ์ : {{ item.product_name }}</p>
-                          <p>คำอธิบาย : {{ item.description }}</p>
-                          <p>ราคา : {{ item.product_price }} บาท</p>
-                          <p>จำนวน: {{ item.quantity }}</p>
-                        </div>
-                        <div class="col">
-                          <img
-                            :src="item.image_base64"
-                            alt="Product Image"
-                            class="product-image"
-                          />
-                        </div>
-                      </div>
-                      <hr />
-                      <br />
-                    </li>
-                  </ul>
-                  <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+                  <q-table
+                    :rows="order.orderItems"
+                    :columns="columns"
+                    row-key="order_item_id"
+                    flat
+                    bordered
+                    separator="cell"
+                  >
+                    <template v-slot:body-cell-image="props">
+                      <q-td>
+                        <img
+                          :src="props.row.image_base64"
+                          alt="Product Image"
+                          class="product-image"
+                        />
+                      </q-td>
+                    </template>
+                    <template v-slot:body-cell-product_name="props">
+                      <q-td>{{ props.row.product_name }}</q-td>
+                    </template>
+                    <template v-slot:body-cell-description="props">
+                      <q-td>{{ props.row.description }}</q-td>
+                    </template>
+                    <template v-slot:body-cell-product_price="props">
+                      <q-td>{{ props.row.product_price }} บาท</q-td>
+                    </template>
+                    <template v-slot:body-cell-quantity="props">
+                      <q-td>{{ props.row.quantity }}</q-td>
+                    </template>
+                  </q-table>
+                  <p class="total-amount">
+                    เงินรวมทั้งหมด : {{ order.total_amount }} บาท
+                  </p>
 
                   <!-- Timeline for Delivered Status -->
                   <div v-if="order.status === 'Delivered'">
@@ -498,6 +392,13 @@ export default {
       errorMessage: "",
       imageFile: null, // เก็บไฟล์ภาพ
       imagePreview: "", // เก็บ Base64 ของภาพสำหรับแสดงในหน้าเว็บ
+      columns: [
+        { name: "image", label: "ภาพสินค้า", align: "left" },
+        { name: "product_name", label: "ชื่อสินค้า", align: "left" },
+        { name: "description", label: "คำอธิบาย", align: "left" },
+        { name: "product_price", label: "ราคา", align: "left" },
+        { name: "quantity", label: "จำนวน", align: "left" },
+      ],
     };
   },
   computed: {
@@ -794,5 +695,10 @@ export default {
 .preview-container {
   margin-top: 10px;
   text-align: center;
+}
+.total-amount {
+  font-weight: bold;
+  text-align: right;
+  margin-top: 10px;
 }
 </style>

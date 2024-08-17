@@ -69,19 +69,14 @@
                 </div>
                 <q-card-section v-show="order.showDetails">
                   <h5>รายการสินค้า:</h5>
-                  <ul>
-                    <li
-                      v-for="item in order.orderItems"
-                      :key="item.order_item_id"
-                      class="order-item"
-                    >
-                      <p>
-                        สินค้า ID: {{ item.product_id }} | ผลิตภัณฑ์:
-                        {{ item.product_name }} | ราคา: {{ item.price }} บาท |
-                        จำนวน: {{ item.quantity }}
-                      </p>
-                    </li>
-                  </ul>
+                  <q-table
+                    :rows="order.orderItems"
+                    :columns="itemColumns"
+                    row-key="order_item_id"
+                    flat
+                    bordered
+                    separator="cell"
+                  />
                   <h5>รายละเอียดการชำระเงิน:</h5>
                   <img
                     :src="order.payment_image_base64"
@@ -169,6 +164,22 @@ export default {
       loading: false,
       error: false,
       errorMessage: "",
+      itemColumns: [
+        {
+          name: "product_id",
+          label: "ID สินค้า",
+          field: "product_id",
+          align: "left",
+        },
+        {
+          name: "product_name",
+          label: "ชื่อสินค้า",
+          field: "product_name",
+          align: "left",
+        },
+        { name: "price", label: "ราคา", field: "price", align: "right" },
+        { name: "quantity", label: "จำนวน", field: "quantity", align: "right" },
+      ],
     };
   },
   methods: {
