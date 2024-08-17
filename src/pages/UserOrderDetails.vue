@@ -50,7 +50,7 @@
                     <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-                    <p>สถานะ : {{ order.status }}</p>
+                    <p>สถานะ : <q-btn color="red-9">ถูกยกเลิก</q-btn></p>
                   </div>
                   <div class="col-6">
                     <q-btn
@@ -112,7 +112,15 @@
                     <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-                    <p>สถานะ : {{ order.status }}</p>
+                    <p>
+                      สถานะ :
+                      <span v-if="order.status === 'Pending'"
+                        ><q-btn color="yellow-10">รอการชำระเงิน</q-btn></span
+                      >
+                      <span v-if="order.status === 'Waiting'"
+                        ><q-btn color="yellow-10">รอการตรวจสอบ</q-btn></span
+                      >
+                    </p>
                   </div>
                   <div class="col-6">
                     <q-btn
@@ -272,7 +280,9 @@
                     <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-                    <p>สถานะ : {{ order.status }}</p>
+                    <p>
+                      สถานะ : <q-btn color="blue">อยู่ระหว่างการจัดส่ง</q-btn>
+                    </p>
                   </div>
                   <div class="col-6">
                     <q-btn
@@ -373,7 +383,7 @@
                     <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-                    <p>สถานะ : {{ order.status }}</p>
+                    <p>สถานะ : <q-btn color="green">จัดส่งสำเร็จ</q-btn></p>
                   </div>
                   <div class="col-6">
                     <q-btn
