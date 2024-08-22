@@ -130,30 +130,31 @@
               :key="review.review_id"
               class="review-card"
             >
-              <q-rating :value="review.rating" readonly size="20px" />
-              <p>{{ review.review }}</p>
-              <p>
+              <div class="review-content">
                 <img
                   :src="review.profileimg"
-                  style="width: 25px; height: 25px; border-radius: 50%"
                   alt="Profile Image"
-                  v-if="review.profileimg"
+                  class="profile-img"
                 />
-                <strong>ผู้ใช้:</strong>
-                {{ review.username }}
-              </p>
-
-              <small
-                >รีวิวเมื่อ {{ formatDateToThai(review.review_date) }}</small
-              >
-
-              <div v-if="review.username === currentUser?.username">
-                <q-btn
-                  color="red"
-                  @click="deleteReview(review.review_id)"
-                  class="delete-button"
-                  >ลบรีวิว</q-btn
-                >
+                <div class="review-details">
+                  <p><strong>ผู้ใช้:</strong> {{ review.username }}</p>
+                  <p>{{ review.review }}</p>
+                  <small
+                    >รีวิวเมื่อ
+                    {{ formatDateToThai(review.review_date) }}</small
+                  >
+                  <q-rating :value="review.rating" readonly size="16px" />
+                </div>
+                <div v-if="review.username === currentUser?.username">
+                  <q-btn
+                    color="negative"
+                    @click="deleteReview(review.review_id)"
+                    icon="delete"
+                    label="ลบรีวิว"
+                    class="delete-button"
+                    flat
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -594,18 +595,35 @@ export default {
 }
 
 .review-card {
-  background-color: #f8f9fa;
+  background-color: #fff;
   padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  position: relative; /* เพิ่มเพื่อให้ใช้งาน position:absolute ภายในได้ */
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+}
+
+.review-content {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.profile-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.review-details {
+  flex: 1;
 }
 
 .delete-button {
-  position: absolute;
-  right: 10px;
-  top: 75%;
-  /* หรือปรับการจัดวางอื่น ๆ ตามความเหมาะสม */
+  margin-left: auto;
+  color: red;
 }
 
 .d-flex.justify-center {

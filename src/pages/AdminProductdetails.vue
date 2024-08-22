@@ -1,127 +1,100 @@
 <template>
-  <div>
+  <div class="admin-container">
     <div class="row">
       <div class="col-1"></div>
       <div class="col-10">
-        <div>
-          <q-carousel
-            animated
-            v-model="slide"
-            arrows
-            navigation
-            infinite
-            :autoplay="autoplay"
-          >
-            <q-carousel-slide
-              :name="1"
-              img-src="/src/assets/logo/bgcontent.png"
-            />
-            <q-carousel-slide
-              :name="2"
-              img-src="/src/assets/logo/bgcontent.png"
-            />
-          </q-carousel>
-        </div>
-        <div
-          v-if="product"
-          class="col-8 d-flex justify-center align-center header"
-        >
-          <p>
-            {{ product.ProductName }}
-          </p>
-        </div>
-        <div v-if="product">
-          <div class="row">
-            <div class="col-md-6 card-container">
-              <q-card class="my-card">
-                <div
-                  style="display: flex; justify-content: center; padding: 10px"
-                >
-                  <img :src="product.ProductImage" alt="Product Image" />
-                </div>
+        <q-toolbar class="c">
+          <q-toolbar-title>Admin - Manage Product Reviews</q-toolbar-title>
+          <q-btn
+            color="primary"
+            icon="arrow_back"
+            label="Back to Admin Dashboard"
+            @click="backToAdminDashboard"
+            flat
+          />
+        </q-toolbar>
 
-                <q-card-section>
-                  <div class="row">
-                    <div class="col text-h6 ellipsis">
-                      {{ product.ProductName }}
-                    </div>
-                  </div>
-                  <q-rating v-model="stars" :max="5" size="32px" />
-                  <div class="view-count">
-                    <p>ยอดผู้เข้าชม: {{ product.ViewCount }}</p>
-                  </div>
-                </q-card-section>
-              </q-card>
-            </div>
-            <q-card> </q-card>
-            <div class="col-md-6 details">
-              <p class="title">{{ product.ProductName }}</p>
-              <p class="description">
-                รายละเอียด: {{ product.ProductDescription }}
-              </p>
-              <p class="price">ราคา {{ product.ProductPrice }} บาท</p>
-              <p>จำนวนคงเหลือ {{ product.ProductQuantity }} ชิ้น</p>
-              <div class="amount-controls">
-                <q-btn
-                  @click="decreaseAmount"
-                  color="red-12"
-                  label="ลดจำนวน"
-                  class="amount"
-                />
-                <q-btn color="red-12" class="amount" :label="selectedAmount" />
-                <q-btn
-                  @click="increaseAmount"
-                  color="red-12"
-                  label="เพิ่มจำนวน"
-                  class="amount"
+        <q-card v-if="product" class="product-details q-mb-md">
+          <q-card-section>
+            <div class="row q-gutter-md">
+              <div class="col-md-4">
+                <q-img
+                  :src="product.image_base64"
+                  alt="Product Image"
+                  class="product-image"
+                  :ratio="1"
+                  spinner-color="primary"
                 />
               </div>
-              <q-btn color="red-12" class="total-price">
-                ราคา {{ selectedAmount * product.ProductPrice }} บาท
-              </q-btn>
-              <div class="order-buttons">
-                <q-btn
-                  color="red-12"
-                  class="order"
-                  @click="addToFavorites"
-                  style="margin-top: 15px; margin-bottom: 15px"
-                >
-                  <q-icon
-                    name="favorite"
-                    style="font-size: 20px"
-                  />เพิ่มเป็นผลิตภัณฑ์ที่ชอบ
-                </q-btn>
-                <q-btn color="red-10" class="order" @click="buy">
-                  <q-icon
-                    name="shopping_cart"
-                    style="font-size: 20px; margin-left: 10px"
-                  />ซื้อสินค้า
-                </q-btn>
+              <div class="col-md-8">
+                <h3>Product Details</h3>
+                <p>
+                  <strong>Product Name:</strong> {{ product?.product_name }}
+                </p>
+                <p><strong>Description:</strong> {{ product?.description }}</p>
+                <p><strong>Price:</strong> {{ product?.price }} บาท</p>
+                <p>
+                  <strong>Quantity Available:</strong>
+                  {{ product?.quantity }} ชิ้น
+                </p>
+                <q-rating v-model="stars" readonly size="20px" />
               </div>
             </div>
-          </div>
-          <h2>แสดงความคิดเห็น</h2>
-          <div class="comment-section">
-            <q-input
-              v-model="comment"
-              placeholder="แสดงความคิดเห็น"
-              color="white"
-              autogrow
-              stack-label
-            />
-          </div>
-          <div class="comment-buttons">
-            <q-btn color="grey" @click="submitComment">ส่งความคิดเห็น</q-btn>
-            <span>&nbsp;&nbsp;</span>
-            <a @click="cancelComment">ยกเลิก</a>
-          </div>
-        </div>
+          </q-card-section>
+        </q-card>
+
+        <q-card v-if="reviews.length > 0" class="q-mb-md">
+          <q-card-section>
+            <h3>Reviews</h3>
+            <q-list>
+              <q-item
+                v-for="review in reviews"
+                :key="review.review_id"
+                class="review-card"
+              >
+                <q-item-section avatar>
+                  <img size="50px" :src="review.profileimg" />
+                </q-item-section>
+
+                <q-item-section>
+                  <q-item-label>
+                    <strong>User:</strong> {{ review.username }}
+                  </q-item-label>
+                  <q-item-label>{{ review.review }}</q-item-label>
+                  <q-item-label caption>
+                    Reviewed on {{ formatDateToThai(review.review_date) }}
+                  </q-item-label>
+                  <q-rating :value="review.rating" readonly size="20px" />
+                </q-item-section>
+
+                <q-item-section side top>
+                  <q-btn
+                    color="negative"
+                    @click="deleteReview(review.review_id)"
+                    icon="delete"
+                    label="Delete Review"
+                    flat
+                  />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+
         <div v-else>
-          <p>Loading...</p>
+          <q-card>
+            <q-card-section>
+              <p>No reviews for this product.</p>
+            </q-card-section>
+          </q-card>
         </div>
-        <div class="d-flex justify-center mt-4">
-          <q-btn @click="link" color="red" label="กลับหน้าร้านค้า" />
-        </div>
+
+        <q-btn
+          @click="backToAdminDashboard"
+          color="primary"
+          label="Back to Admin Dashboard"
+          class="q-mt-md"
+        />
       </div>
       <div class="col-1"></div>
     </div>
@@ -130,101 +103,130 @@
 
 <script>
 import axios from "axios";
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 
 export default {
   setup() {
-    const products = ref([]);
+    const product = ref(null);
+    const reviews = ref([]);
     const router = useRouter();
-    const slide = ref(1);
-    const autoplay = ref(true);
-    const selectedAmount = ref(0);
-    const stars = ref(0);
-    const comment = ref("");
 
-    const fetchProducts = async () => {
+    const formatDateToThai = (dateString) => {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat("th-TH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(date);
+    };
+
+    const fetchProduct = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/products");
-        products.value = response.data;
+        const productId = parseInt(router.currentRoute.value.params.id);
+        const response = await axios.get(
+          `http://localhost:3000/products/${productId}`
+        );
+        product.value = response.data;
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching product:", error);
       }
     };
 
-    const link = () => {
-      router.push("/adminshop");
-    };
-
-    const increaseAmount = () => {
-      if (selectedAmount.value < product.value.ProductQuantity) {
-        selectedAmount.value++;
+    const fetchReviews = async () => {
+      try {
+        const productId = parseInt(router.currentRoute.value.params.id);
+        const response = await axios.get(
+          `http://localhost:3000/product-reviews/${productId}`
+        );
+        reviews.value = response.data;
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
       }
     };
 
-    const decreaseAmount = () => {
-      if (selectedAmount.value > 0) {
-        selectedAmount.value--;
+    const deleteReview = async (reviewId) => {
+      try {
+        const confirmed = await Swal.fire({
+          title: "Confirm Deletion",
+          text: "Are you sure you want to delete this review?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Delete",
+          cancelButtonText: "Cancel",
+        });
+
+        if (confirmed.isConfirmed) {
+          await axios.delete(
+            `http://localhost:3000/product-reviews/${reviewId}`
+          );
+          Swal.fire("Success", "Review deleted successfully", "success");
+          await fetchReviews(); // Refresh the reviews list
+        }
+      } catch (error) {
+        console.error("Error deleting review:", error);
+        Swal.fire("Error", "Unable to delete review", "error");
       }
     };
 
-    const product = computed(() => {
-      const productId = parseInt(router.currentRoute.value.params.id);
-      return products.value.find((prod) => prod.ProductID === productId);
-    });
-
-    const buy = () => {
-      Swal.fire({
-        title: "กรุณาเข้าสู่ระบบก่อน",
-        icon: "error",
-      });
+    const backToAdminDashboard = () => {
+      router.push("/admindash");
     };
 
-    const addToFavorites = () => {
-      Swal.fire({
-        title: "เพิ่มเป็นผลิตภัณฑ์ที่ชอบ",
-        icon: "success",
-      });
-    };
-
-    const submitComment = () => {
-      Swal.fire({
-        title: "ส่งความคิดเห็นเรียบร้อย",
-        icon: "success",
-      });
-      comment.value = "";
-    };
-
-    const cancelComment = () => {
-      comment.value = "";
-    };
-
-    onMounted(() => {
-      fetchProducts();
+    onMounted(async () => {
+      await fetchProduct();
+      await fetchReviews();
     });
 
     return {
-      products,
-      slide,
-      autoplay,
-      link,
-      increaseAmount,
-      decreaseAmount,
       product,
-      stars,
-      selectedAmount,
-      buy,
-      addToFavorites,
-      comment,
-      submitComment,
-      cancelComment,
+      reviews,
+      formatDateToThai,
+      deleteReview,
+      backToAdminDashboard,
     };
   },
 };
 </script>
 
 <style>
+.admin-container {
+  background-color: #fce7d1;
+
+  border-radius: 8px;
+}
+
+.product-details {
+  padding: 20px;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.review-card {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.q-btn {
+  margin-top: 15px;
+}
+
+.c {
+  background-color: brown;
+  color: white;
+}
+
+.q-toolbar-title {
+  font-weight: bold;
+}
+
 .col-10 {
   min-height: 100vh;
   background-color: #fce7d1;
@@ -235,93 +237,5 @@ export default {
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-}
-
-.my-card {
-  width: 550px;
-  height: 550px;
-}
-
-.my-card img {
-  display: flex;
-  justify-content: center;
-  width: 350px;
-  height: 350px;
-}
-
-.card-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 25px;
-}
-
-.header {
-  background-color: white;
-  text-align: center;
-  font-size: 35px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  margin-top: 30px;
-  text-shadow: 1px 1px 50px #000000;
-}
-
-.details {
-  padding: 15px;
-}
-
-.title {
-  font-size: 45px;
-}
-
-.description,
-.price {
-  font-size: 24px;
-}
-
-.amount-controls {
-  display: flex;
-  align-items: center;
-}
-
-.amount {
-  font-size: 20px;
-}
-
-.total-price {
-  margin-top: 15px;
-}
-
-.order-buttons {
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-
-.order {
-  font-size: 20px;
-  width: 250px;
-  margin-right: 10px;
-}
-
-.comment-section {
-  background-color: aliceblue;
-}
-
-.comment-buttons {
-  margin-top: 15px;
-}
-
-.view-count {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 16px;
-}
-
-.d-flex.justify-center {
-  display: flex;
-  justify-content: center;
-}
-
-.mt-4 {
-  margin-top: 4px;
 }
 </style>
