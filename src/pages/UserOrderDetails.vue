@@ -176,6 +176,70 @@
                     เงินรวมทั้งหมด : {{ order.total_amount }} บาท
                   </p>
                 </q-card-section>
+                <!-- Payment Image or Upload Section -->
+                <div v-if="order.status === 'Pending'">
+                  <label for="image-upload" class="upload-label">
+                    อัพโหลดใบเสร็จการชำระเงิน
+                  </label>
+                  <div class="qrcode-container">
+                    <img
+                      src="/src/assets/qrcodepromtpay.jpg"
+                      alt="QR Code"
+                      style="width: 450px"
+                    />
+                  </div>
+
+                  <input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    @change="handleImageChange"
+                    class="upload-input"
+                  />
+
+                  <!-- แสดงภาพตัวอย่างก่อนอัพโหลด -->
+                  <div v-if="imagePreview" class="preview-container">
+                    <h5>รูปภาพที่จะอัพโหลด:</h5>
+                    <img
+                      :src="imagePreview"
+                      alt="Preview Image"
+                      class="preview-image"
+                    />
+                  </div>
+                </div>
+
+                <div v-else>
+                  <h5>รูปภาพการชำระเงิน:</h5>
+                  <img
+                    :src="order.payment_image_base64"
+                    class="payment-image"
+                    alt="Payment Image"
+                  />
+                </div>
+
+                <img
+                  :src="order.imageUrl"
+                  v-if="order.imageUrl"
+                  class="preview-image"
+                  alt="Uploaded Image"
+                />
+                <div
+                  class="center-btn"
+                  v-if="
+                    order.status === 'Pending' || order.status === 'Waiting'
+                  "
+                >
+                  <q-btn
+                    @click="markAsShipped(order)"
+                    color="green"
+                    v-if="order.status === 'Pending'"
+                  >
+                    ชำระเงิน
+                  </q-btn>
+                  <q-btn @click="cancelOrder(order)" color="red">
+                    ยกเลิกการสั่งสินค้า
+                  </q-btn>
+                </div>
               </q-card>
             </q-col>
           </q-row>
@@ -196,6 +260,9 @@
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
                     <p>
                       สถานะ : <q-btn color="blue">อยู่ระหว่างการจัดส่ง</q-btn>
+                    </p>
+                    <p style="margin-top: -5px">
+                      เลข Tracking : {{ order.trackingNumber }}
                     </p>
                   </div>
                   <div class="col-6">
@@ -249,6 +316,13 @@
                       :src="order.payment_image_base64"
                       class="payment-image"
                       alt="Payment Image"
+                    />
+                  </div>
+                  <div class="center-btn">
+                    <q-btn
+                      @click="markAsDelivered(order)"
+                      color="green"
+                      label="ยืนยันการได้รับสินค้า"
                     />
                   </div>
                 </q-card-section>

@@ -91,7 +91,12 @@ const login = () => {
     .then((response) => {
       console.log(JSON.stringify(response.data));
       doSomething();
-      router.push("/adminmain");
+      if (response.data.role === "admin") {
+        sessionStorage.setItem("role", response.data.role); // เก็บ role ไว้ใน sessionStorage
+        router.push("/adminmain"); // ถ้าเป็น admin ก็เปลี่ยนไปที่หน้าของ admin
+      } else {
+        router.push("/"); // ถ้าไม่ใช่ admin ให้เปลี่ยนไปหน้าอื่น
+      }
       sessionStorage.setItem("username", response.data.username);
     })
     .catch((error) => {

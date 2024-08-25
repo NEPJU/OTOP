@@ -26,26 +26,34 @@ export default route(function (/* { store, ssrContext } */) {
 
   Router.beforeEach((to, from, next) => {
     const isAuthenticated = sessionStorage.getItem("username");
-    const isAdmin = sessionStorage.getItem("isAdmin") === "true"; // Assuming you store this as "true"/"false"
+    const userRole = sessionStorage.getItem("role");
 
     if (to.matched.some((record) => record.meta.requiresAuth)) {
       if (!isAuthenticated) {
-        next({
-          path: "/login",
-          // query: { redirect: to.fullPath }, // Optional: redirect back to the intended route after login
-        });
-      } else {
-        if (
-          to.matched.some((record) => record.meta.requiresAdmin) &&
-          !isAdmin
-        ) {
-          next({ path: "/" }); // Redirect to home if not an admin
+        if (to.path.startsWith("/admin")) {
+          next({ path: "/admin" }); // Redirect to admin login if trying to access an admin route
         } else {
-          next();
+          next({ path: "/login" }); // Redirect to user login if trying to access a user route
+        }
+      } else {
+        if (to.matched.some((record) => record.meta.requiresAdmin)) {
+          if (userRole === "admin") {
+            next(); // Allow access to admin pages
+          } else {
+            next("/"); // Redirect to home if not admin
+          }
+        } else if (to.matched.some((record) => record.meta.requiresUser)) {
+          if (userRole === "user") {
+            next(); // Allow access to user pages
+          } else {
+            next("/"); // Redirect to home if not a regular user
+          }
+        } else {
+          next(); // Proceed normally for routes that do not require specific roles
         }
       }
     } else {
-      next(); // Make sure to always call next()
+      next(); // Proceed for routes that do not require authentication
     }
   });
 
