@@ -22,18 +22,7 @@
               ></q-table>
             </div>
           </div>
-          <div class="col cl">
-            <div>
-              <h4>ยอดขายอาทิตย์นี้</h4>
-              <p>{{ formatCurrency(totalSalesWeek) }}</p>
-              <q-table
-                dense
-                :rows="salesWeekProducts"
-                :columns="salesProductColumns"
-                row-key="product_name"
-              ></q-table>
-            </div>
-          </div>
+
           <div class="col cl">
             <div>
               <h4>ยอดขายเดือนนี้</h4>
@@ -71,13 +60,7 @@
               <canvas id="salesTodayChart"></canvas>
             </div>
           </div>
-          <div class="col">
-            <div>
-              <h4>ยอดขายอาทิตย์นี้</h4>
-              <p>{{ formatCurrency(totalSalesWeek) }}</p>
-              <canvas id="salesWeekChart"></canvas>
-            </div>
-          </div>
+
           <div class="col">
             <div>
               <h4>ยอดขายเดือนนี้</h4>

@@ -52,6 +52,19 @@
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
                     <p>สถานะ : {{ order.status }}</p>
+                    <!-- เพิ่มส่วนแสดงข้อมูลผู้ใช้ -->
+                    <div class="user-info">
+                      <h5>ข้อมูลผู้สั่งซื้อ:</h5>
+                      <!-- <img
+                        :src="order.user_profileimg"
+                        alt="User Profile Image"
+                        class="user-profile-image"
+                      /> -->
+                      <p>ชื่อ: {{ order.user_name }}</p>
+                      <p>อีเมล: {{ order.user_email }}</p>
+                      <p>ที่อยู่ : {{ order.user_address }}</p>
+                      <p>เบอร์ : {{ order.user_phone }}</p>
+                    </div>
                     <p v-if="order.trackingNumber">
                       Tracking Number: {{ order.trackingNumber }}
                     </p>

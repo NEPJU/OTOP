@@ -2,9 +2,12 @@
   <q-layout view="hHh lpR fFf" class="bg">
     <q-header elevated class="bg-brown-8">
       <q-toolbar>
+        <router-link to="/main">
+          <q-btn style="color: white">กลับสู่หน้าหลัก</q-btn>
+        </router-link>
         <!-- Other toolbar content -->
         <q-space />
-        <div class="YL__toolbar-input-container row no-wrap">
+        <!-- <div class="YL__toolbar-input-container row no-wrap">
           <q-input
             dark
             dense
@@ -24,6 +27,11 @@
             unelevated
             @click="clearSearch"
           />
+        </div> -->
+
+        <q-space />
+
+        <div class="q-gutter-sm row items-center no-wrap">
           <router-link to="/cart">
             <q-btn
               text-color="white"
@@ -34,11 +42,6 @@
               <q-badge color="red" transparent floating>{{ count }}</q-badge>
             </q-btn>
           </router-link>
-        </div>
-
-        <q-space />
-
-        <div class="q-gutter-sm row items-center no-wrap">
           <q-btn>
             <q-avatar size="26px">
               <img :src="users.profileimg" />
