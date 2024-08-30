@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="">
     <div class="row">
       <div class="col-1 bgside"></div>
       <div class="col-10 bgcenter">
@@ -9,7 +9,7 @@
           <q-spinner-dots color="brown-6" size="50px" />
         </div>
 
-        <div v-if="!loading && deliveredOrders.length === 0">
+        <div v-if="!loading && deliveredOrders.length === 0" class="no-orders">
           <p>ไม่มีประวัติการสั่งซื้อที่ส่งสินค้าแล้ว</p>
         </div>
 
@@ -22,22 +22,21 @@
               sm="12"
             >
               <q-card class="order-card">
-                <div class="row card-header">
-                  <div class="col-6">
+                <div class="card-header">
+                  <div>
                     <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
                   </div>
-                  <div class="col-6">
-                    <q-btn
-                      @click="toggleOrderDetails(order)"
-                      color="red"
-                      :label="
-                        order.showDetails ? 'ซ่อนรายละเอียด' : 'ดูรายละเอียด'
-                      "
-                      class="details-btn"
-                    />
-                  </div>
+                  <q-btn
+                    @click="toggleOrderDetails(order)"
+                    color="primary"
+                    :label="
+                      order.showDetails ? 'ซ่อนรายละเอียด' : 'ดูรายละเอียด'
+                    "
+                    class="details-btn"
+                    unelevated
+                  />
                 </div>
 
                 <!-- ตารางแสดงรายการสินค้า -->
@@ -49,7 +48,7 @@
                     row-key="order_item_id"
                     flat
                     bordered
-                    separator="cell"
+                    separator="horizontal"
                   >
                     <template v-slot:body-cell-image="props">
                       <q-td>
@@ -82,7 +81,7 @@
           </q-row>
         </div>
 
-        <div v-if="error">
+        <div v-if="error" class="error-banner">
           <q-banner type="warning" class="q-mb-md">
             <template v-slot:avatar>
               <q-icon name="warning" />
@@ -165,48 +164,95 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .container {
   margin-top: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
+
 .bgside {
   background-image: url("/src/assets/logo/bgside.png");
 }
+
 .bgcenter {
   min-height: 100vh;
   background-color: bisque;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
 .page-title {
   margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+  color: #5a350c;
 }
+
 .loading-spinner {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
 }
+
 .order-card {
-  margin-top: 10px;
-  margin-bottom: 10px;
-  width: 100%;
-  box-sizing: border-box;
-}
-.card-header {
+  margin-top: 20px;
+  margin-bottom: 20px;
   padding: 15px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: white;
+  transition: transform 0.3s ease;
 }
+
+.order-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
 .details-btn {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 28%;
+  background-color: #5a350c;
+  color: white;
 }
+
+.details-btn:hover {
+  background-color: #442609;
+}
+
 .product-image {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
 }
+
 .total-amount {
   margin-top: 15px;
   font-weight: bold;
   font-size: 16px;
   text-align: right;
+  color: #5a350c;
+}
+
+.no-orders {
+  text-align: center;
+  font-size: 18px;
+  color: gray;
+  margin-top: 20px;
+}
+
+.error-banner {
+  margin-top: 20px;
 }
 </style>

@@ -21,20 +21,9 @@
               img-src="/src/assets/logo/bgcontent.png"
             />
           </q-carousel>
-          <div class="column" style="height: 150px">
-            <div
-              class="col-8 d-flex justify-center align-center"
-              style="
-                background-color: white;
-                text-align: center;
-                font-size: 25px;
-                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
-                  0 6px 20px 0 rgba(0, 0, 0, 0.19);
-              "
-            >
-              <p style="margin-top: 30px; text-shadow: 1px 1px 50px #000000">
-                โปรโมชัน
-              </p>
+          <div class="column promo-header">
+            <div class="promo-banner">
+              <p class="promo-text">โปรโมชัน</p>
             </div>
           </div>
         </div>
@@ -42,35 +31,26 @@
         <div class="q-pa-md example-row-mix-and-match">
           <div class="row justify-center items-center">
             <div
-              class="col-12 col-md-6 col-lg-4"
+              class="col-12 col-md-6 col-lg-4 product-wrapper"
               v-for="(product, index) in filteredProducts"
               :key="index"
-              style="padding: 5px"
             >
               <q-card class="product-card">
                 <q-img :src="product.ProductImage" class="product-image">
-                  <div class="absolute-bottom text-h6">
-                    <span style="font-size: 24px">{{
-                      product.ProductName
-                    }}</span>
+                  <div class="absolute-bottom text-h6 product-title">
+                    <span>{{ product.ProductName }}</span>
                   </div>
                 </q-img>
-                <div class="ellipsis" style="font-size: 20px">
-                  <p style="font-size: 24px">{{ product.ProductName }}</p>
+                <div class="ellipsis product-description">
+                  <p>{{ product.ProductName }}</p>
                   รายละเอียด: {{ product.ProductDescription }}
                 </div>
-                <div>
+                <div class="product-details">
                   ราคา {{ product.ProductPrice }} บาท
                   <div>ยอดคงเหลือ {{ product.ProductQuantity }} ชิ้น</div>
                 </div>
 
-                <div
-                  style="
-                    margin-bottom: 15px;
-                    display: flex;
-                    justify-content: center;
-                  "
-                >
+                <div class="action-buttons">
                   <router-link
                     :to="`/product/${product.ProductID}`"
                     class="no-underline"
@@ -81,6 +61,7 @@
                     ใส่ตระกร้า
                   </q-btn>
                 </div>
+
                 <div class="product-info">
                   <div class="icon-container">
                     <button
@@ -112,7 +93,6 @@
                       </svg>
                     </button>
                   </div>
-
                   <div class="viewer-count">
                     #{{ product.ProductCategory }} ยอดการขาย
                     {{ product.ProductSaleCount }} รายการ
@@ -123,77 +103,37 @@
           </div>
         </div>
 
-        <div style="display: flex; justify-content: center">
+        <div class="shop-button-container">
           <q-btn
             unelevated
             color="brown-13"
             size="30px"
             label="เข้าสู่ร้านค้า"
-            style="
-              border-radius: 15px;
-              width: 250px;
-              height: 125px;
-              margin-top: 25px;
-              margin-bottom: 15px;
-            "
+            class="shop-button"
             @click="link"
           />
         </div>
 
-        <div style="background-color: aliceblue; margin-top: 15px">
-          <p
-            style="
-              text-align: center;
-              font-size: 30px;
-              padding: 20px 0px 0px 0px;
-            "
-          >
-            เกี่ยวกับฉัน
-          </p>
-          <div style="padding: 10px 50px 50px 50px">
-            <div
-              style="
-                padding: 20px;
-                text-align: justify;
-                background-color: #d9d9d9;
-                border-radius: 30px;
-                font-size: 24px;
-              "
-            >
+        <div class="about-section">
+          <p class="section-title">เกี่ยวกับฉัน</p>
+          <div class="about-content">
+            <div class="about-text">
               Lorem ipsum dolor sit amet consectetur adipisicing elit.
             </div>
             <div class="row">
               <div class="col-md-6">
-                <p style="font-size: 28px; padding: 16px 0px 0px 0px">
-                  ที่ตั้งร้านค้า
-                </p>
+                <p class="subsection-title">ที่ตั้งร้านค้า</p>
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d333.11266926020534!2d99.90012479045728!3d19.1628709079874!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d9d32b6858a6bb%3A0x92ff6f124b15f06e!2sBoat%20Pier%20to%20Wat%20Tilok%20Aram!5e0!3m2!1sen!2sth!4v1713344046066!5m2!1sen!2sth"
-                  style="
-                    border-radius: 20px;
-                    border: #000000 2px;
-                    width: 100%;
-                    padding: 0px 15px 0px 0px;
-                    aspect-ratio: 16/9;
-                  "
+                  class="store-map"
                   allowfullscreen=""
                   loading="lazy"
                   referrerpolicy="no-referrer-when-downgrade"
                 ></iframe>
               </div>
               <div class="col-md-6">
-                <p style="font-size: 28px; padding: 16px 0px 0px 0px">
-                  ที่อยู่ร้านค้า
-                </p>
-                <div
-                  style="
-                    padding: 20px;
-                    text-align: justify;
-                    background-color: #d9d9d9;
-                    border-radius: 30px;
-                    font-size: 24px;
-                  "
-                >
+                <p class="subsection-title">ที่อยู่ร้านค้า</p>
+                <div class="store-address">
                   Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed
                 </div>
               </div>
@@ -201,44 +141,31 @@
           </div>
         </div>
 
-        <p
-          style="text-align: center; padding: 25px 0px 5px 0px; font-size: 30px"
-        >
-          ผลิตภัณฑ์ยอดนิยม
-        </p>
+        <p class="section-title">ผลิตภัณฑ์ยอดนิยม</p>
 
         <div class="q-pa-md example-row-mix-and-match">
           <div class="row justify-center items-center">
             <div
-              class="col-12 col-md-6 col-lg-4"
+              class="col-12 col-md-6 col-lg-4 product-wrapper"
               v-for="(product, index) in randomProducts"
               :key="index"
-              style="padding: 5px"
             >
               <q-card class="product-card">
                 <q-img :src="product.ProductImage" class="product-image">
-                  <div class="absolute-bottom text-h6">
-                    <span style="font-size: 24px">{{
-                      product.ProductName
-                    }}</span>
+                  <div class="absolute-bottom text-h6 product-title">
+                    <span>{{ product.ProductName }}</span>
                   </div>
                 </q-img>
-                <div class="ellipsis" style="font-size: 20px">
-                  <p style="font-size: 24px">{{ product.ProductName }}</p>
+                <div class="ellipsis product-description">
+                  <p>{{ product.ProductName }}</p>
                   รายละเอียด: {{ product.ProductDescription }}
                 </div>
-                <div>
+                <div class="product-details">
                   ราคา {{ product.ProductPrice }} บาท
                   <div>ยอดคงเหลือ {{ product.ProductQuantity }} ชิ้น</div>
                 </div>
 
-                <div
-                  style="
-                    margin-bottom: 15px;
-                    display: flex;
-                    justify-content: center;
-                  "
-                >
+                <div class="action-buttons">
                   <router-link
                     :to="`/product/${product.ProductID}`"
                     class="no-underline"
@@ -291,93 +218,46 @@
           </div>
         </div>
 
-        <div style="background-color: aliceblue">
-          <p
-            style="
-              text-align: center;
-              padding: 15px 0px 5px 0px;
-              font-size: 30px;
-              color: #5a350c;
-              margin-top: 50px;
-            "
-          >
-            ติดต่อเรา
-          </p>
-          <div style="padding: 45px">
+        <div class="contact-section">
+          <p class="section-title">ติดต่อเรา</p>
+          <div class="contact-content">
             <div class="row justify-center items-center">
               <div class="col-md-6">
-                <p
-                  style="
-                    font-size: 28px;
-                    padding: 16px 0px 0px 0px;
-                    color: #5a350c;
-                    display: flex;
-                    justify-content: center;
-                  "
-                >
-                  ที่ตั้งร้านค้า
-                </p>
+                <p class="subsection-title">ที่ตั้งร้านค้า</p>
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d333.11266926020534!2d99.90012479045728!3d19.1628709079874!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30d9d32b6858a6bb%3A0x92ff6f124b15f06e!2sBoat%20Pier%20to%20Wat%20Tilok%20Aram!5e0!3m2!1sen!2sth!4v1713344046066!5m2!1sen!2sth"
-                  style="
-                    border-radius: 20px;
-                    border: #000000 2px;
-                    width: 100%;
-                    padding: 0px 15px 0px 0px;
-                    aspect-ratio: 16/9;
-                  "
+                  class="store-map"
                   allowfullscreen=""
                   loading="lazy"
                   referrerpolicy="no-referrer-when-downgrade"
                 ></iframe>
               </div>
               <div class="col-md-6">
-                <p
-                  style="
-                    font-size: 28px;
-                    /* padding: 16px 0px 0px 0px; */
-                    color: #5a350c;
-                    display: flex;
-                    justify-content: center;
-                  "
-                >
-                  ติดต่อร้านค้า
-                </p>
-                <div style="display: flex; justify-content: center">
-                  <div
-                    style="
-                      padding: 20px;
-                      text-align: justify;
-                      background-color: #d9d9d9;
-                      border-radius: 30px;
-                      font-size: 24px;
-                      width: 500px;
-                    "
-                  >
-                    <div class="contact">
-                      <a href="javascript:void(0)"
-                        ><q-icon name="phone" class="contact-icon" />
-                        090-555-5555</a
-                      >
-                    </div>
-                    <div class="contact">
-                      <a href="javascript:void(0)"
-                        ><q-icon name="phone" class="contact-icon" />
-                        090-xxx-xxxx</a
-                      >
-                    </div>
-                    <div class="contact">
-                      <a href="javascript:void(0)"
-                        ><q-icon name="email" class="contact-icon" />
-                        090-xxx-xxxx</a
-                      >
-                    </div>
-                    <div class="contact">
-                      <a href="javascript:void(0)"
-                        ><q-icon name="location_on" class="contact-icon" />
-                        090-xxx-xxxx</a
-                      >
-                    </div>
+                <p class="subsection-title">ติดต่อร้านค้า</p>
+                <div class="store-contact">
+                  <div class="contact">
+                    <a href="javascript:void(0)">
+                      <q-icon name="phone" class="contact-icon" />
+                      090-555-5555
+                    </a>
+                  </div>
+                  <div class="contact">
+                    <a href="javascript:void(0)">
+                      <q-icon name="phone" class="contact-icon" />
+                      090-xxx-xxxx
+                    </a>
+                  </div>
+                  <div class="contact">
+                    <a href="javascript:void(0)">
+                      <q-icon name="email" class="contact-icon" />
+                      090-xxx-xxxx
+                    </a>
+                  </div>
+                  <div class="contact">
+                    <a href="javascript:void(0)">
+                      <q-icon name="location_on" class="contact-icon" />
+                      090-xxx-xxxx
+                    </a>
                   </div>
                 </div>
               </div>
@@ -567,7 +447,8 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+/* General Styles */
 .col-1 {
   background-image: url("/src/assets/logo/bgside.png");
 }
@@ -577,15 +458,158 @@ export default {
   background-color: #fce7d1;
 }
 
-.my-card {
-  height: 00px;
-  max-width: 500px;
+/* Promo Banner */
+.promo-header {
+  height: 150px;
+}
+
+.promo-banner {
+  background-color: white;
+  text-align: center;
+  font-size: 25px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.promo-text {
+  margin-top: 30px;
+  text-shadow: 1px 1px 50px #000000;
+}
+
+/* Product Card */
+.product-wrapper {
+  padding: 5px;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.product-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.product-image {
+  height: auto;
+  max-height: 200px; /* Adjust max height as needed */
+  object-fit: cover;
+}
+
+.product-title {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px 0;
+  text-align: center;
+  margin: 0; /* Remove margins to avoid extra space */
+}
+
+.product-description {
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  padding: 0 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-details {
+  font-size: 16px;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5rem 0;
+}
+
+/* Shop Button */
+.shop-button-container {
+  display: flex;
+  justify-content: center;
+  margin: 25px 0 15px;
+}
+
+.shop-button {
+  border-radius: 20px;
+  width: 100%;
+  max-width: 300px;
+  height: 60px;
+  font-size: 1.5rem;
+  background-color: #5a350c;
+  color: white;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.shop-button:hover {
+  background-color: #442609;
+  transform: translateY(-5px);
+}
+
+/* About Section */
+.about-section {
+  background-color: aliceblue;
+  margin-top: 15px;
+  padding: 50px;
+}
+
+.about-content {
+  padding: 20px 50px;
+  text-align: center;
+}
+
+.about-text {
+  padding: 20px;
+  text-align: justify;
+  background-color: #d9d9d9;
+  border-radius: 30px;
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+.subsection-title {
+  font-size: 28px;
+  padding: 16px 0;
+  color: #5a350c;
+}
+
+.store-map {
+  border-radius: 20px;
+  border: 2px solid #000;
+  width: 100%;
+  aspect-ratio: 16/9;
+}
+
+.store-address {
+  padding: 20px;
+  text-align: justify;
+  background-color: #d9d9d9;
+  border-radius: 30px;
+  font-size: 24px;
+}
+
+/* Contact Section */
+.contact-section {
+  background-color: aliceblue;
+}
+
+.contact-content {
+  padding: 45px;
 }
 
 .contact {
   text-align: center;
   background-color: #b19470;
-  padding: 5px 5px 5px 5px;
+  padding: 5px;
   margin-bottom: 20px;
   border-radius: 15px;
 }
@@ -599,91 +623,55 @@ export default {
   font-size: 30px;
 }
 
-.d-flex.justify-center {
-  display: flex;
-  justify-content: center;
-}
-
-.no-underline {
-  text-decoration: none;
-  color: #000000;
-  font-size: 18px;
-}
-
-.container {
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background: white;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.125);
-
-  filter: drop-shadow(0 30px 10px rgba(0, 0, 0, 0.125));
-  max-height: 550px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.section-title {
   text-align: center;
+  font-size: 30px;
+  padding: 15px 0;
+  color: #5a350c;
+  margin-top: 50px;
 }
 
-.description {
-  color: black;
-  font-size: 16px;
-}
-
-.button-wrapper {
-  margin-top: 18px;
-}
-
+/* Buttons */
 .btn {
   border: none;
   padding: 12px 24px;
   border-radius: 24px;
-  font-size: 12px;
   font-size: 0.8rem;
   letter-spacing: 2px;
   cursor: pointer;
   margin-right: 10px;
-}
-
-.btn + .btn {
-  margin-left: 10px;
+  transition: all 0.3s ease;
 }
 
 .outline {
   background: #fce7d1;
   color: rgba(0, 0, 0, 0.9);
   border: 1px solid rgba(0, 0, 0, 0.6);
-  transition: all 0.3s ease;
 }
 
 .outline:hover {
   transform: scale(1.125);
   color: rgba(0, 0, 0, 0.9);
   border-color: rgba(0, 0, 0, 0.9);
-  transition: all 0.3s ease;
 }
 
 .fill {
   background: rgba(227, 51, 28, 0.9);
   color: rgb(253, 253, 253);
-  filter: drop-shadow(0);
   font-weight: bold;
-  transition: all 0.3s ease;
 }
 
 .fill:hover {
   transform: scale(1.125);
-  border-color: rgba(255, 255, 255, 0.9);
-  filter: drop-shadow(0 10px 5px rgba(0, 0, 0, 0.125));
-  transition: all 0.3s ease;
 }
 
 .icon-container {
   position: absolute;
   bottom: 10px;
   right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .icon-button {
@@ -715,104 +703,124 @@ export default {
   }
 }
 
-.viewer-count {
-  padding: 0px 10px 0px 0px;
-  position: absolute; /* ตำแหน่งเป็น absolute */
-  bottom: 10px; /* จัดตำแหน่งด้านล่าง */
-  left: 10px; /* จัดตำแหน่งด้านซ้าย */
-  font-size: 14px; /* ขนาดตัวอักษร */
-  color: #555; /* สีข้อความ */
-}
-
-.type {
-  text-decoration: none;
-  font-size: 18px;
-}
-
-/* เพิ่มเงื่อนไขสำหรับประเภทที่เลือก */
-.type.active {
-  color: black; /* สีของประเภทที่เลือก */
-  font-weight: bold; /* เพิ่มหน้าตัวหนา */
-}
-
-/* เพิ่มเงื่อนไขสำหรับประเภทที่ไม่ได้เลือก */
-.type:not(.active) {
-  color: gray; /* สีของประเภทที่ไม่ได้เลือก */
-}
-
-.search-input {
-  max-width: calc(
-    100% - 120px
-  ); /* ปรับความกว้างให้พอดีกับขนาดของปุ่มเรียงลำดับ */
-}
-
-.product-card {
-  height: 600px;
-}
-.product-header {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.product-title {
-  flex-grow: 1;
-  font-size: 24px;
-  font-weight: bold;
-}
-.product-filters {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.product-description {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.product-image {
-  height: 300px;
-  object-fit: cover;
-}
-
-.product-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.icon-container {
-  display: flex;
-  align-items: center;
-}
 .icon-button {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-.no-results {
-  font-size: 16px;
-  color: red;
-}
-.ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.footer-section {
-  background: #333;
-  color: #fff;
-  padding: 20px;
-  text-align: center;
-  margin-top: 40px;
+  border: 2px solid gray;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
-.footer-title {
-  font-size: 20px;
-  font-weight: bold;
+.icon-button:hover {
+  background-color: red;
+  border-color: red;
+  color: white;
 }
 
-.footer-content {
+.viewer-count {
+  padding: 10px;
+  bottom: 10px;
+  left: 10px;
   font-size: 14px;
+  color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .promo-banner {
+    font-size: 20px;
+  }
+
+  .shop-button {
+    font-size: 1.25rem;
+    height: 50px;
+  }
+
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .product-image {
+    height: auto;
+    max-height: 200px; /* Adjust max height as needed */
+    object-fit: cover;
+  }
+
+  .product-title {
+    font-size: 20px;
+  }
+
+  .product-description {
+    font-size: 14px;
+  }
+
+  .product-details {
+    font-size: 16px;
+  }
+
+  .about-text,
+  .store-address {
+    font-size: 20px;
+  }
+
+  .subsection-title {
+    font-size: 24px;
+  }
+
+  .contact-content {
+    padding: 30px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .promo-banner {
+    font-size: 18px;
+  }
+
+  .shop-button {
+    font-size: 1rem;
+    height: 45px;
+  }
+
+  .product-title {
+    font-size: 18px;
+  }
+
+  .product-description {
+    font-size: 12px;
+  }
+
+  .product-details {
+    font-size: 14px;
+  }
+
+  .about-text,
+  .store-address {
+    font-size: 18px;
+  }
+
+  .subsection-title {
+    font-size: 20px;
+  }
+
+  .contact-content {
+    padding: 20px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
 }
 </style>
