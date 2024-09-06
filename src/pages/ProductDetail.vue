@@ -10,6 +10,7 @@
           navigation
           infinite
           :autoplay="autoplay"
+          class="carousel-container"
         >
           <q-carousel-slide
             :name="1"
@@ -23,35 +24,33 @@
 
         <div
           v-if="product"
-          class="col-8 d-flex justify-center align-center header"
+          class="header d-flex justify-center align-center q-mt-md q-pa-sm"
         >
-          <p>{{ product.ProductName }}</p>
+          <p class="header-text">{{ product.ProductName }}</p>
         </div>
 
-        <div v-if="product">
+        <div v-if="product" class="q-mt-md">
           <div class="row">
             <div class="col-md-6 card-container">
               <q-card class="my-card">
-                <div
-                  style="display: flex; justify-content: center; padding: 10px"
-                >
-                  <img :src="product.ProductImage" alt="Product Image" />
+                <div class="q-pa-sm q-mb-md">
+                  <q-img
+                    :src="product.ProductImage"
+                    alt="Product Image"
+                    class="product-image"
+                  />
                 </div>
-
                 <q-card-section>
                   <div class="row">
-                    <div class="col text-h6 ellipsis">
+                    <div class="col text-h6 ellipsis product-name">
                       {{ product.ProductName }}
                     </div>
                   </div>
-                  <q-rating v-model="stars" :max="5" size="32px" />
-                  <div class="view-count">
-                    <p>ยอดผู้เข้าชม: {{ product.ViewCount }}</p>
-                  </div>
-                  <q-btn
-                    @click="submitRating"
-                    label="ส่งคะแนน"
-                    color="primary"
+                  <q-rating
+                    v-model="stars"
+                    :max="5"
+                    size="32px"
+                    color="orange"
                   />
                 </q-card-section>
               </q-card>
@@ -59,76 +58,83 @@
             <div class="col-md-6 details">
               <p class="title">{{ product.ProductName }}</p>
               <p class="description">
-                รายละเอียด: {{ product.ProductDescription }}
+                {{ product.ProductDescription }}
               </p>
-              <p class="price">ราคา {{ product.ProductPrice }} บาท</p>
-              <p>จำนวนคงเหลือ {{ product.ProductQuantity }} ชิ้น</p>
-              <div class="amount-controls">
+              <p class="price">฿{{ product.ProductPrice }}</p>
+              <p class="quantity">คงเหลือ {{ product.ProductQuantity }} ชิ้น</p>
+              <div class="amount-controls q-mt-md">
                 <q-btn
                   @click="decreaseAmount"
-                  color="red-12"
-                  label="ลดจำนวน"
-                  class="amount"
+                  color="primary"
+                  outline
+                  icon="remove"
+                  class="amount-btn"
                 />
-                <q-btn color="red-12" class="amount" :label="selectedAmount" />
+                <q-input
+                  v-model="selectedAmount"
+                  readonly
+                  class="amount-display"
+                  align="center"
+                  dense
+                />
                 <q-btn
                   @click="increaseAmount"
-                  color="red-12"
-                  label="เพิ่มจำนวน"
-                  class="amount"
+                  color="primary"
+                  outline
+                  icon="add"
+                  class="amount-btn"
                 />
               </div>
-              <q-btn color="red-12" class="total-price"
-                >ราคา {{ selectedAmount * product.ProductPrice }} บาท</q-btn
+              <q-btn color="primary" class="total-price q-mt-md"
+                >รวมราคา: ฿{{ selectedAmount * product.ProductPrice }}</q-btn
               >
-              <div class="order-buttons">
+              <div class="order-buttons q-mt-md">
                 <q-btn
-                  color="red-12"
+                  color="primary"
                   class="order"
                   @click="toggleFavorite(product)"
-                  style="margin-top: 15px; margin-bottom: 15px"
+                  icon="favorite"
                 >
-                  <q-icon name="favorite" style="font-size: 20px" />
                   {{
                     product.isFavorite
-                      ? "ลบออกจากผลิตภัณฑ์ที่ชอบ"
-                      : "เพิ่มเป็นผลิตภัณฑ์ที่ชอบ"
+                      ? "นำออกจากสินค้าที่ชอบ"
+                      : "เพิ่มในสินค้าที่ชอบ"
                   }}
                 </q-btn>
-                <q-btn color="red-10" class="order" @click="addToCart(product)">
-                  <q-icon
-                    name="shopping_cart"
-                    style="font-size: 20px; margin-left: 10px"
-                  />ซื้อสินค้า
+                <q-btn
+                  color="secondary"
+                  class="order q-ml-sm"
+                  @click="addToCart(product)"
+                  icon="shopping_cart"
+                >
+                  ซื้อสินค้า
                 </q-btn>
               </div>
             </div>
           </div>
 
-          <!-- Section for Writing Review -->
-          <h2>แสดงความคิดเห็น</h2>
-          <div class="comment-section">
+          <h2 class="q-mt-lg comment-heading">แสดงความคิดเห็น</h2>
+          <div class="comment-section q-pa-sm">
             <q-input
               v-model="comment"
-              placeholder="แสดงความคิดเห็น"
-              color="white"
-              autogrow
+              placeholder="เขียนความคิดเห็น"
+              filled
               stack-label
             />
           </div>
-          <div class="comment-buttons">
-            <q-btn color="grey" @click="submitReview">ส่งความคิดเห็น</q-btn>
-            <span>&nbsp;&nbsp;</span>
-            <a @click="cancelComment">ยกเลิก</a>
+          <div class="comment-buttons q-mt-sm">
+            <q-btn color="positive" @click="submitReview">ส่งความคิดเห็น</q-btn>
+            <q-btn flat color="negative" @click="cancelComment" class="q-ml-sm"
+              >ยกเลิก</q-btn
+            >
           </div>
 
-          <!-- Section for Displaying Reviews -->
-          <h2>รีวิวจากผู้ใช้</h2>
+          <h2 class="q-mt-lg review-heading">รีวิวจากผู้ใช้</h2>
           <div v-if="reviews.length > 0">
             <div
               v-for="review in reviews"
               :key="review.review_id"
-              class="review-card"
+              class="review-card q-mt-md"
             >
               <div class="review-content">
                 <img
@@ -143,17 +149,22 @@
                     >รีวิวเมื่อ
                     {{ formatDateToThai(review.review_date) }}</small
                   >
-                  <q-rating :value="review.rating" readonly size="16px" />
+                  <q-rating
+                    :value="review.rating"
+                    readonly
+                    size="16px"
+                    color="orange"
+                  />
                 </div>
                 <div v-if="review.username === currentUser?.username">
                   <q-btn
                     color="negative"
                     @click="deleteReview(review.review_id)"
                     icon="delete"
-                    label="ลบรีวิว"
-                    class="delete-button"
                     flat
-                  />
+                  >
+                    ลบรีวิว
+                  </q-btn>
                 </div>
               </div>
             </div>
@@ -163,9 +174,9 @@
           </div>
         </div>
         <div v-else>
-          <p>Loading...</p>
+          <p>กำลังโหลด...</p>
         </div>
-        <div class="d-flex justify-center mt-4">
+        <div class="d-flex justify-center q-mt-lg">
           <q-btn @click="link" color="red" label="กลับหน้าร้านค้า" />
         </div>
       </div>
@@ -502,10 +513,12 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+/* General Container */
 .col-10 {
   min-height: 100vh;
-  background-color: #fce7d1;
+  background-color: #f9f6f2;
+  padding-bottom: 40px;
 }
 
 .col-1 {
@@ -515,104 +528,150 @@ export default {
   background-position: center;
 }
 
-.my-card {
-  width: 550px;
-  height: 550px;
+/* Carousel */
+.carousel-container {
+  margin-top: 20px;
 }
 
-.my-card img {
-  display: flex;
-  justify-content: center;
-  width: 350px;
-  height: 350px;
+/* Header */
+.header {
+  background-color: #ffffff;
+  text-align: center;
+  font-size: 35px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  text-shadow: 1px 1px 20px #888;
+  border-radius: 12px;
+  padding: 10px 0;
 }
 
+.header-text {
+  font-weight: bold;
+  color: #5a350c;
+}
+
+/* Product Card */
 .card-container {
   display: flex;
   justify-content: center;
   margin-top: 25px;
 }
 
-.header {
-  background-color: white;
-  text-align: center;
-  font-size: 35px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  margin-top: 30px;
-  text-shadow: 1px 1px 50px #000000;
+.my-card {
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
 }
 
+.product-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+/* Product Details */
 .details {
   padding: 15px;
 }
 
 .title {
-  font-size: 45px;
+  font-size: 26px;
+  font-weight: bold;
+  color: #333;
 }
 
-.description,
+.description {
+  font-size: 16px;
+  color: #555;
+  margin-top: 10px;
+}
+
 .price {
-  font-size: 24px;
+  font-size: 22px;
+  color: #d9534f;
+  margin-top: 15px;
+}
+
+.quantity {
+  font-size: 16px;
+  color: #555;
+  margin-top: 5px;
 }
 
 .amount-controls {
   display: flex;
   align-items: center;
+  margin-top: 20px;
 }
 
-.amount {
-  font-size: 20px;
+.amount-btn {
+  font-size: 18px;
+  width: 50px;
+  height: 50px;
+}
+
+.amount-display {
+  width: 80px;
+  text-align: center;
+  font-size: 18px;
+  border: 1px solid #ddd;
+  margin: 0 10px;
 }
 
 .total-price {
-  margin-top: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
 }
 
+/* Order Buttons */
 .order-buttons {
-  margin-top: 15px;
-  margin-bottom: 15px;
+  margin-top: 20px;
 }
 
 .order {
-  font-size: 20px;
-  width: 280px;
-  margin-right: 10px;
+  font-size: 16px;
+  width: 240px;
+  padding: 12px;
+  text-transform: none;
 }
 
+/* Comment Section */
 .comment-section {
-  background-color: aliceblue;
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .comment-buttons {
   margin-top: 15px;
-}
-
-.view-count {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 16px;
-}
-
-.review-card {
-  background-color: #fff;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
+}
+
+/* Reviews */
+.review-card {
+  background-color: #ffffff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: flex-start;
 }
 
 .review-content {
   display: flex;
+  align-items: flex-start;
   width: 100%;
-  align-items: center;
 }
 
 .profile-img {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   margin-right: 15px;
 }
@@ -622,16 +681,48 @@ export default {
 }
 
 .delete-button {
-  margin-left: auto;
-  color: red;
+  color: #d9534f;
+}
+
+/* Spacing and Margins */
+.q-mt-md {
+  margin-top: 20px;
+}
+
+.q-mt-lg {
+  margin-top: 40px;
+}
+
+.q-mt-sm {
+  margin-top: 10px;
+}
+
+.q-pa-sm {
+  padding: 10px;
+}
+
+.q-pa-md {
+  padding: 20px;
+}
+
+.q-ml-sm {
+  margin-left: 10px;
+}
+
+.q-ml-md {
+  margin-left: 20px;
+}
+
+.comment-heading,
+.review-heading {
+  color: #333;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .d-flex.justify-center {
   display: flex;
   justify-content: center;
-}
-
-.mt-4 {
-  margin-top: 4px;
 }
 </style>

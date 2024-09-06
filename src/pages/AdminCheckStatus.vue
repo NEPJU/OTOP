@@ -1,166 +1,164 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="col-1 bgside"></div>
-      <div class="col-10 bgcenter">
-        <div class="row">
-          <div class="col-12 btn-container">
-            <q-btn
-              class="btn-box"
-              color="brown-6"
-              @click="filterOrders('Waiting')"
-              label="รอการตรวจสอบ"
-            />
-            <q-btn
-              class="btn-box"
-              color="brown-6"
-              @click="filterOrders('Shipped')"
-              label="การส่งสินค้า"
-            />
-            <q-btn
-              class="btn-box"
-              color="brown-6"
-              @click="filterOrders('Delivered')"
-              label="จัดส่งสำเร็จ"
-            />
-            <q-btn
-              class="btn-box"
-              color="brown-6"
-              @click="filterOrders('Cancelled')"
-              label="สินค้าที่ถูกยกเลิก"
-            />
-          </div>
+  <div class="row">
+    <div class="col-1 bgside"></div>
+    <div class="col-10 bgcenter">
+      <div class="row">
+        <div class="col-12 btn-container">
+          <q-btn
+            class="btn-box"
+            color="brown-6"
+            @click="filterOrders('Waiting')"
+            label="รอการตรวจสอบ"
+          />
+          <q-btn
+            class="btn-box"
+            color="brown-6"
+            @click="filterOrders('Shipped')"
+            label="การส่งสินค้า"
+          />
+          <q-btn
+            class="btn-box"
+            color="brown-6"
+            @click="filterOrders('Delivered')"
+            label="จัดส่งสำเร็จ"
+          />
+          <q-btn
+            class="btn-box"
+            color="brown-6"
+            @click="filterOrders('Cancelled')"
+            label="สินค้าที่ถูกยกเลิก"
+          />
         </div>
-        <div v-if="loading" class="loading-spinner">
-          <q-spinner-dots color="brown-6" size="50px" />
-        </div>
-        <div v-if="!loading && filteredOrders.length === 0" class="no-orders">
-          <p>ไม่มีรายการในสถานะนี้</p>
-        </div>
-        <div v-if="!loading && filteredOrders.length > 0">
-          <q-row>
-            <q-col
-              v-for="order in filteredOrders"
-              :key="order.order_id"
-              cols="12"
-              sm="6"
-            >
-              <q-card class="order-card">
-                <div class="row card-header">
-                  <div class="col-6">
-                    <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
-                    <p>วันที่ : {{ order.order_date }}</p>
-                    <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-                    <p>สถานะ : {{ order.status }}</p>
-                    <!-- เพิ่มส่วนแสดงข้อมูลผู้ใช้ -->
-                    <div class="user-info">
-                      <h5>ข้อมูลผู้สั่งซื้อ:</h5>
-                      <!-- <img
+      </div>
+      <div v-if="loading" class="loading-spinner">
+        <q-spinner-dots color="brown-6" size="50px" />
+      </div>
+      <div v-if="!loading && filteredOrders.length === 0" class="no-orders">
+        <p>ไม่มีรายการในสถานะนี้</p>
+      </div>
+      <div v-if="!loading && filteredOrders.length > 0">
+        <q-row>
+          <q-col
+            v-for="order in filteredOrders"
+            :key="order.order_id"
+            cols="12"
+            sm="6"
+          >
+            <q-card class="order-card">
+              <div class="row card-header">
+                <div class="col-6">
+                  <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
+                  <p>วันที่ : {{ order.order_date }}</p>
+                  <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
+                  <p>สถานะ : {{ order.status }}</p>
+                  <!-- เพิ่มส่วนแสดงข้อมูลผู้ใช้ -->
+                  <div class="user-info">
+                    <h5>ข้อมูลผู้สั่งซื้อ:</h5>
+                    <!-- <img
                         :src="order.user_profileimg"
                         alt="User Profile Image"
                         class="user-profile-image"
                       /> -->
-                      <p>ชื่อ: {{ order.user_name }}</p>
-                      <p>อีเมล: {{ order.user_email }}</p>
-                      <p>ที่อยู่ : {{ order.user_address }}</p>
-                      <p>เบอร์ : {{ order.user_phone }}</p>
-                    </div>
-                    <p v-if="order.trackingNumber">
-                      Tracking Number: {{ order.trackingNumber }}
-                    </p>
+                    <p>ชื่อ: {{ order.user_name }}</p>
+                    <p>อีเมล: {{ order.user_email }}</p>
+                    <p>ที่อยู่ : {{ order.user_address }}</p>
+                    <p>เบอร์ : {{ order.user_phone }}</p>
                   </div>
-                  <div class="col-6">
-                    <q-btn
-                      @click="toggleOrderDetails(order)"
-                      color="red"
-                      :label="
-                        order.showDetails ? 'ซ่อนรายละเอียด' : 'ดูรายละเอียด'
-                      "
-                      class="details-btn"
-                    />
-                  </div>
+                  <p v-if="order.trackingNumber">
+                    Tracking Number: {{ order.trackingNumber }}
+                  </p>
                 </div>
-                <q-card-section v-show="order.showDetails">
-                  <h5>รายการสินค้า:</h5>
-                  <q-table
-                    :rows="order.orderItems"
-                    :columns="itemColumns"
-                    row-key="order_item_id"
-                    flat
-                    bordered
-                    separator="cell"
-                  />
-                  <h5>รายละเอียดการชำระเงิน:</h5>
-                  <img
-                    :src="order.payment_image_base64"
-                    class="payment-image"
-                    alt="Payment Image"
-                  />
-                  <div class="center-btn" v-if="order.status === 'Waiting'">
-                    <q-btn @click="confirmPayment(order)" color="green">
-                      ยืนยันการชำระเงิน
-                    </q-btn>
-                    <q-btn @click="cancelOrder(order)" color="red">
-                      ยกเลิกการสั่งซื้อ
-                    </q-btn>
-                  </div>
-
-                  <!-- Timeline for Shipped and Delivered Status -->
-                  <div
-                    v-if="
-                      order.status === 'Shipped' || order.status === 'Delivered'
+                <div class="col-6">
+                  <q-btn
+                    @click="toggleOrderDetails(order)"
+                    color="red"
+                    :label="
+                      order.showDetails ? 'ซ่อนรายละเอียด' : 'ดูรายละเอียด'
                     "
-                  >
-                    <q-timeline color="secondary" layout="dense">
-                      <q-timeline-entry
-                        color="green"
-                        icon="done"
-                        title="ชำระเงินสำเร็จ"
-                        subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
-                      />
-                      <q-timeline-entry color="blue" icon="local_shipping">
-                        <div>
-                          <h6>เลข Tracking</h6>
-                          <q-input
-                            v-model="order.trackingNumber"
-                            placeholder="กรอกเลข Tracking"
-                            outlined
-                            :readonly="order.status === 'Delivered'"
-                          />
-                          <q-btn
-                            v-if="order.status === 'Shipped'"
-                            @click="confirmPayment(order)"
-                            color="green"
-                            label="บันทึก Tracking"
-                          />
-                        </div>
-                      </q-timeline-entry>
-                      <q-timeline-entry
-                        v-if="order.status === 'Delivered'"
-                        color="orange"
-                        icon="check_circle"
-                        title="จัดส่งสำเร็จ"
-                        subtitle="ลูกค้าได้รับสินค้าแล้ว"
-                      />
-                    </q-timeline>
-                  </div>
-                </q-card-section>
-              </q-card>
-            </q-col>
-          </q-row>
-        </div>
-        <div v-if="error">
-          <q-banner type="warning" class="q-mb-md">
-            <template v-slot:avatar>
-              <q-icon name="warning" />
-            </template>
-            <div class="text-h6">Error</div>
-            <div>{{ errorMessage }}</div>
-          </q-banner>
-        </div>
+                    class="details-btn"
+                  />
+                </div>
+              </div>
+              <q-card-section v-show="order.showDetails">
+                <h5>รายการสินค้า:</h5>
+                <q-table
+                  :rows="order.orderItems"
+                  :columns="itemColumns"
+                  row-key="order_item_id"
+                  flat
+                  bordered
+                  separator="cell"
+                />
+                <h5>รายละเอียดการชำระเงิน:</h5>
+                <img
+                  :src="order.payment_image_base64"
+                  class="payment-image"
+                  alt="Payment Image"
+                />
+                <div class="center-btn" v-if="order.status === 'Waiting'">
+                  <q-btn @click="confirmPayment(order)" color="green">
+                    ยืนยันการชำระเงิน
+                  </q-btn>
+                  <q-btn @click="cancelOrder(order)" color="red">
+                    ยกเลิกการสั่งซื้อ
+                  </q-btn>
+                </div>
+
+                <!-- Timeline for Shipped and Delivered Status -->
+                <div
+                  v-if="
+                    order.status === 'Shipped' || order.status === 'Delivered'
+                  "
+                >
+                  <q-timeline color="secondary" layout="dense">
+                    <q-timeline-entry
+                      color="green"
+                      icon="done"
+                      title="ชำระเงินสำเร็จ"
+                      subtitle="คำสั่งซื้อได้รับการชำระเงินแล้ว"
+                    />
+                    <q-timeline-entry color="blue" icon="local_shipping">
+                      <div>
+                        <h6>เลข Tracking</h6>
+                        <q-input
+                          v-model="order.trackingNumber"
+                          placeholder="กรอกเลข Tracking"
+                          outlined
+                          :readonly="order.status === 'Delivered'"
+                        />
+                        <q-btn
+                          v-if="order.status === 'Shipped'"
+                          @click="confirmPayment(order)"
+                          color="green"
+                          label="บันทึก Tracking"
+                        />
+                      </div>
+                    </q-timeline-entry>
+                    <q-timeline-entry
+                      v-if="order.status === 'Delivered'"
+                      color="orange"
+                      icon="check_circle"
+                      title="จัดส่งสำเร็จ"
+                      subtitle="ลูกค้าได้รับสินค้าแล้ว"
+                    />
+                  </q-timeline>
+                </div>
+              </q-card-section>
+            </q-card>
+          </q-col>
+        </q-row>
       </div>
-      <div class="col-1 bgside"></div>
+      <div v-if="error">
+        <q-banner type="warning" class="q-mb-md">
+          <template v-slot:avatar>
+            <q-icon name="warning" />
+          </template>
+          <div class="text-h6">Error</div>
+          <div>{{ errorMessage }}</div>
+        </q-banner>
+      </div>
     </div>
+    <div class="col-1 bgside"></div>
   </div>
 </template>
 
