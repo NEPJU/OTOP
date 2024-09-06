@@ -85,12 +85,12 @@
                   class="amount-btn"
                 />
               </div>
-              <q-btn color="primary" class="total-price q-mt-md"
+              <q-btn color="red-12" class="total-price q-mt-md"
                 >รวมราคา: ฿{{ selectedAmount * product.ProductPrice }}</q-btn
               >
               <div class="order-buttons q-mt-md">
                 <q-btn
-                  color="primary"
+                  color="red-12"
                   class="order"
                   @click="toggleFavorite(product)"
                   icon="favorite"
@@ -104,6 +104,7 @@
                 <q-btn
                   color="secondary"
                   class="order q-ml-sm"
+                  :disable="product.ProductQuantity === 0"
                   @click="addToCart(product)"
                   icon="shopping_cart"
                 >

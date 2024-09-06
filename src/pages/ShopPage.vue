@@ -199,8 +199,14 @@
                   >
                     <q-btn class="btn outline">รายละเอียด</q-btn>
                   </router-link>
-                  <q-btn class="btn fill" @click="addToCart(product)">
-                    ใส่ตระกร้า
+                  <q-btn
+                    class="btn fill"
+                    :disable="product.ProductQuantity === 0"
+                    @click="addToCart(product)"
+                  >
+                    {{
+                      product.ProductQuantity === 0 ? "สินค้าหมด" : "ใส่ตะกร้า"
+                    }}
                   </q-btn>
                 </div>
                 <div class="product-info">
