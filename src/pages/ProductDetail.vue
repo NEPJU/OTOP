@@ -62,6 +62,31 @@
               </p>
               <p class="price">฿{{ product.ProductPrice }}</p>
               <p class="quantity">คงเหลือ {{ product.ProductQuantity }} ชิ้น</p>
+              <!-- เช็คว่ามีการให้คะแนนหรือไม่ -->
+              <div
+                v-if="
+                  product.averageRating !== null &&
+                  product.averageRating !== undefined &&
+                  !isNaN(product.averageRating)
+                "
+              >
+                <q-rating
+                  v-model="product.averageRating"
+                  max="5"
+                  color="amber"
+                  size="24px"
+                  readonly
+                />
+                <p>
+                  คะแนนเฉลี่ย:
+                  {{ parseFloat(product.averageRating).toFixed(1) }}
+                </p>
+              </div>
+
+              <!-- แสดงข้อความเมื่อไม่มีการรีวิว -->
+              <div v-else>
+                <p>ยังไม่มีการรีวิว</p>
+              </div>
               <div class="amount-controls q-mt-md">
                 <q-btn
                   @click="decreaseAmount"

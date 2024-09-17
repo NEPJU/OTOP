@@ -48,6 +48,31 @@
                 <div class="product-details">
                   ราคา {{ product.ProductPrice }} บาท
                   <div>ยอดคงเหลือ {{ product.ProductQuantity }} ชิ้น</div>
+                  <!-- เช็คว่ามีการให้คะแนนหรือไม่ -->
+                  <div
+                    v-if="
+                      product.averageRating !== null &&
+                      product.averageRating !== undefined &&
+                      !isNaN(product.averageRating)
+                    "
+                  >
+                    <q-rating
+                      v-model="product.averageRating"
+                      max="5"
+                      color="amber"
+                      size="24px"
+                      readonly
+                    />
+                    <p>
+                      คะแนนเฉลี่ย:
+                      {{ parseFloat(product.averageRating).toFixed(1) }}
+                    </p>
+                  </div>
+
+                  <!-- แสดงข้อความเมื่อไม่มีการรีวิว -->
+                  <div v-else>
+                    <p>ยังไม่มีการรีวิว</p>
+                  </div>
                 </div>
 
                 <div class="action-buttons">
@@ -169,6 +194,31 @@
                 <div class="product-details">
                   ราคา {{ product.ProductPrice }} บาท
                   <div>ยอดคงเหลือ {{ product.ProductQuantity }} ชิ้น</div>
+                  <!-- เช็คว่ามีการให้คะแนนหรือไม่ -->
+                  <div
+                    v-if="
+                      product.averageRating !== null &&
+                      product.averageRating !== undefined &&
+                      !isNaN(product.averageRating)
+                    "
+                  >
+                    <q-rating
+                      v-model="product.averageRating"
+                      max="5"
+                      color="amber"
+                      size="24px"
+                      readonly
+                    />
+                    <p>
+                      คะแนนเฉลี่ย:
+                      {{ parseFloat(product.averageRating).toFixed(1) }}
+                    </p>
+                  </div>
+
+                  <!-- แสดงข้อความเมื่อไม่มีการรีวิว -->
+                  <div v-else>
+                    <p>ยังไม่มีการรีวิว</p>
+                  </div>
                 </div>
 
                 <div class="action-buttons">

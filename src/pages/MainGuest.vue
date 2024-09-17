@@ -62,6 +62,25 @@
               <q-card-section class="description">
                 ราคา {{ product.ProductPrice }} บาท
                 <div>ยอดคงเหลือ {{ product.ProductQuantity }} ชิ้น</div>
+                <div
+                  v-if="
+                    product.averageRating !== null &&
+                    product.averageRating !== undefined &&
+                    !isNaN(product.averageRating)
+                  "
+                >
+                  <q-rating
+                    v-model="product.averageRating"
+                    max="5"
+                    color="amber"
+                    size="24px"
+                    readonly
+                  />
+                  <p>
+                    คะแนนเฉลี่ย:
+                    {{ parseFloat(product.averageRating).toFixed(1) }}
+                  </p>
+                </div>
               </q-card-section>
 
               <div class="column" style="height: 150px">
@@ -232,6 +251,25 @@
                 <q-card-section class="description">
                   ราคา {{ product.ProductPrice }} บาท
                   <div>ยอดคงเหลือ {{ product.ProductQuantity }} ชิ้น</div>
+                  <div
+                    v-if="
+                      product.averageRating !== null &&
+                      product.averageRating !== undefined &&
+                      !isNaN(product.averageRating)
+                    "
+                  >
+                    <q-rating
+                      v-model="product.averageRating"
+                      max="5"
+                      color="amber"
+                      size="24px"
+                      readonly
+                    />
+                    <p>
+                      คะแนนเฉลี่ย:
+                      {{ parseFloat(product.averageRating).toFixed(1) }}
+                    </p>
+                  </div>
                 </q-card-section>
 
                 <div class="column" style="height: 150px">

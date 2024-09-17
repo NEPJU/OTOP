@@ -28,9 +28,11 @@
               </div>
               <div class="col-md-8">
                 <h3>Product Details</h3>
+
                 <p>
                   <strong>Product Name:</strong> {{ product?.product_name }}
                 </p>
+
                 <p><strong>Description:</strong> {{ product?.description }}</p>
                 <p><strong>Price:</strong> {{ product?.price }} บาท</p>
                 <p>

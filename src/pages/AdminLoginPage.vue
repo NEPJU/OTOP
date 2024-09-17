@@ -97,7 +97,9 @@ const login = () => {
       } else {
         router.push("/"); // ถ้าไม่ใช่ admin ให้เปลี่ยนไปหน้าอื่น
       }
+      sessionStorage.setItem("userId", response.data.userId);
       sessionStorage.setItem("username", response.data.username);
+      sessionStorage.setItem("token", response.data.token);
     })
     .catch((error) => {
       console.log(error);

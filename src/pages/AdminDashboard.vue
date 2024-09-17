@@ -183,7 +183,13 @@
               :columns="salesProductColumns"
               row-key="product_name"
               separator="horizontal"
-            ></q-table>
+            >
+              <template v-slot:body-cell-sale_date="props">
+                <q-td :props="props">
+                  {{ formatDate(props.row.sale_date) }}
+                </q-td>
+              </template>
+            </q-table>
             <p
               v-if="salesProducts.length === 0"
               class="text-center q-pa-md text-caption"
@@ -239,6 +245,35 @@ export default {
       salesProducts: [],
       salesOverTime: [],
       salesLineChart: null,
+      salesProductColumns: [
+        {
+          name: "product_name",
+          label: "Product Name",
+          align: "left",
+          field: "product_name",
+        },
+        {
+          name: "total_quantity",
+          label: "Total Quantity",
+          align: "left",
+          field: "total_quantity",
+        },
+        {
+          name: "total_revenue",
+          label: "Total Revenue",
+          align: "left",
+          field: "total_revenue",
+          format: (val) => this.formatCurrency(val),
+        },
+        {
+          name: "sale_date",
+          label: "Sale Date",
+          align: "left",
+          field: "sale_date",
+          format: (val) => this.formatDate(val),
+          sortMethod: (a, b) => new Date(a) - new Date(b), // การเรียงลำดับตามวันที่
+        },
+      ],
     };
   },
   methods: {
@@ -292,6 +327,12 @@ export default {
 
         this.totalSales = response.data.total_sales || 0;
         this.salesProducts = response.data.top_products || [];
+
+        // ทำการเรียงลำดับข้อมูลตามวันที่ก่อน
+        this.salesProducts.sort(
+          (a, b) => new Date(a.sale_date) - new Date(b.sale_date)
+        );
+
         this.salesOverTime = response.data.sales_over_time || [];
 
         if (this.selectedOption === "date-range") {
@@ -341,6 +382,11 @@ export default {
           },
         },
       });
+    },
+
+    formatDate(date) {
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Date(date).toLocaleDateString("th-TH", options);
     },
 
     formatCurrency(value) {

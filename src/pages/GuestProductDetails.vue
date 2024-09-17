@@ -61,6 +61,25 @@
               </p>
               <p class="price">ราคา {{ product.ProductPrice }} บาท</p>
               <p>จำนวนคงเหลือ {{ product.ProductQuantity }} ชิ้น</p>
+              <div
+                v-if="
+                  product.averageRating !== null &&
+                  product.averageRating !== undefined &&
+                  !isNaN(product.averageRating)
+                "
+              >
+                <q-rating
+                  v-model="product.averageRating"
+                  max="5"
+                  color="amber"
+                  size="24px"
+                  readonly
+                />
+                <p>
+                  คะแนนเฉลี่ย:
+                  {{ parseFloat(product.averageRating).toFixed(1) }}
+                </p>
+              </div>
               <div class="amount-controls">
                 <q-btn
                   @click="decreaseAmount"

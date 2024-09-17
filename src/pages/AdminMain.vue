@@ -34,7 +34,7 @@
               "
             >
               <p style="margin-top: 30px; text-shadow: 1px 1px 50px #000000">
-                โปรโมชัน {{ cart }}
+                โปรโมชัน
               </p>
             </div>
           </div>

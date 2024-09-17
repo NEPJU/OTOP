@@ -3,6 +3,9 @@
     <div>
       <q-header elevated class="bg-brown-8">
         <q-toolbar>
+          <router-link to="/adminmain">
+            <q-btn style="color: white">กลับสู่หน้าหลัก</q-btn>
+          </router-link>
           <q-space />
 
           <div class="YL__toolbar-input-container row no-wrap">

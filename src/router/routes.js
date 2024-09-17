@@ -149,7 +149,7 @@ const routes = [
   {
     path: "/adminprofile",
     component: () => import("layouts/AdminLayout.vue"),
-    children: [{ path: "", component: () => import("pages/AdminProfile.vue") }],
+    children: [{ path: "", component: () => import("pages/AdminEdit.vue") }],
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
