@@ -108,9 +108,18 @@ const login = () => {
     .then((response) => {
       console.log(JSON.stringify(response.data));
       doSomething();
-      router.push("/main");
+
+      // ตรวจสอบ role เพื่อพาผู้ใช้ไปยังหน้าที่เหมาะสม
+      if (response.data.role === "admin") {
+        router.push("/adminshop");
+      } else {
+        router.push("/shop");
+      }
+
+      // เก็บข้อมูล session
       sessionStorage.setItem("userId", response.data.userId);
       sessionStorage.setItem("username", response.data.username);
+      sessionStorage.setItem("role", response.data.role);
       sessionStorage.setItem("token", response.data.token);
     })
     .catch((error) => {
@@ -118,6 +127,7 @@ const login = () => {
       LoginError();
     });
 };
+
 const link = () => {
   router.push("/register");
 };

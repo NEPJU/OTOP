@@ -119,8 +119,8 @@
               </div>
             </div>
           </div>
-          <h2>แสดงความคิดเห็น</h2>
-          <div class="comment-section">
+          <!-- <h2>แสดงความคิดเห็น</h2> -->
+          <!-- <div class="comment-section">
             <q-input
               v-model="comment"
               placeholder="แสดงความคิดเห็น"
@@ -128,12 +128,12 @@
               autogrow
               stack-label
             />
-          </div>
-          <div class="comment-buttons">
+          </div> -->
+          <!-- <div class="comment-buttons">
             <q-btn color="grey" @click="submitComment">ส่งความคิดเห็น</q-btn>
             <span>&nbsp;&nbsp;</span>
             <a @click="cancelComment">ยกเลิก</a>
-          </div>
+          </div> -->
         </div>
         <div v-else>
           <p>Loading...</p>

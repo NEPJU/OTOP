@@ -33,7 +33,7 @@
               "
             >
               <p style="margin-top: 30px; text-shadow: 1px 1px 50px #000000">
-                ผลิตภัณฑ์ยอดนิยม
+                โปรโมชัน
               </p>
             </div>
           </div>
@@ -92,7 +92,7 @@
                     >
                       <q-btn class="btn outline">รายละเอียด</q-btn>
                     </router-link>
-                    <q-btn class="btn fill" @click="press">ใส่ตระกร้า</q-btn>
+                    <q-btn class="btn fill" @click="press">ใส่ตะกร้า</q-btn>
                   </div>
                   <p style="margin-top: 10px">#{{ product.ProductCategory }}</p>
                 </div>
@@ -165,17 +165,13 @@
                 font-size: 24px;
               "
             >
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Consequatur at in dolorem incidunt illum sequi, doloribus atque
-              sapiente iste consectetur rerum, dicta a odit, deleniti molestiae
-              repellat quis ad tempora. Non, explicabo blanditiis totam libero
-              expedita natus excepturi repellat obcaecati eaque provident
-              eligendi, nostrum maiores doloremque velit quo numquam optio
-              reiciendis porro voluptate earum exercitationem ex! Adipisci nam
-              voluptatem quis, earum in nobis asperiores? Tempora minima, rem,
-              explicabo a sit iusto vero voluptates unde odio error laboriosam
-              veritatis ipsa sed repellat repudiandae quaerat deleniti totam
-              maxime nostrum sequi tempore tenetur eius cupiditate quas. Minima
+              OTOP (One Tambon One Product) จังหวัดพะเยา
+              เป็นโครงการส่งเสริมสินค้าท้องถิ่นในระดับชุมชน
+              ที่ได้รับการสนับสนุนจากรัฐบาลไทย
+              โครงการนี้เน้นการพัฒนาศักยภาพของชุมชนในแต่ละตำบล
+              เพื่อสร้างผลิตภัณฑ์ที่มีคุณภาพและเอกลักษณ์เฉพาะตัว
+              เพื่อกระจายรายได้เข้าสู่ชุมชน
+              และสร้างงานสร้างอาชีพให้กับคนในท้องถิ่น
             </div>
             <div class="row">
               <div class="col-md-6">
@@ -209,14 +205,7 @@
                     font-size: 24px;
                   "
                 >
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed
-                  debitis minima expedita neque esse similique modi corrupti
-                  delectus eveniet perferendis, perspiciatis, nulla rem odit.
-                  Veniam qui quam sequi hic tempora facere enim ipsam aspernatur
-                  at iure nam laboriosam odio quaerat eum magnam placeat,
-                  sapiente, a amet mollitia consequuntur repellat aliquid
-                  reiciendis temporibus vitae. Similique iure voluptates magni
-                  quae eveniet laboriosam. Esse, dicta distinction.
+                  ถนนเลียบชายกว๊าน ตำบลเวียง อำเภอเมืองพะเยา ประเทศไทย 56000
                 </div>
               </div>
             </div>
@@ -281,7 +270,7 @@
                       >
                         <q-btn class="btn outline">รายละเอียด</q-btn>
                       </router-link>
-                      <q-btn class="btn fill" @click="press">ใส่ตระกร้า</q-btn>
+                      <q-btn class="btn fill" @click="press">ใส่ตะกร้า</q-btn>
                     </div>
                     <p style="margin-top: 10px">
                       #{{ product.ProductCategory }}

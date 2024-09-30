@@ -3,10 +3,13 @@
     <div>
       <q-header elevated class="bg-brown-8">
         <q-toolbar>
+          <router-link to="/gmain">
+            <q-btn style="color: white">กลับสู่หน้าหลัก</q-btn>
+          </router-link>
           <q-space />
 
           <div class="YL__toolbar-input-container row no-wrap">
-            <q-input
+            <!-- <q-input
               dense
               outlined
               square
@@ -21,11 +24,11 @@
               icon="search"
               unelevated
             />
-            <q-btn text-color="white" icon="shopping_cart" unelevated />
+            <q-btn text-color="white" icon="shopping_cart" unelevated /> -->
           </div>
 
           <q-space />
-
+          <q-btn text-color="white" icon="shopping_cart" unelevated />
           <div class="q-gutter-sm row items-center no-wrap">
             <q-btn flat>
               <q-avatar size="26px">
@@ -33,7 +36,7 @@
               </q-avatar>
               Login
 
-              <q-tooltip>Account</q-tooltip>
+              <!-- <q-tooltip>Account</q-tooltip> -->
               <q-menu>
                 <q-list style="min-width: 100px">
                   <router-link
@@ -41,7 +44,7 @@
                     style="text-decoration: none; color: black"
                   >
                     <q-item clickable v-close-popup>
-                      <q-item-section>Login</q-item-section>
+                      <q-item-section>เข้าสู่ระบบ</q-item-section>
                     </q-item>
                   </router-link>
                   <router-link
@@ -49,7 +52,7 @@
                     style="text-decoration: none; color: black"
                   >
                     <q-item clickable v-close-popup>
-                      <q-item-section>Register</q-item-section>
+                      <q-item-section>สมัครสมาชิก</q-item-section>
                     </q-item>
                   </router-link>
                 </q-list>

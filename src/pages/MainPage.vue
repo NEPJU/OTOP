@@ -149,7 +149,13 @@
           <p class="section-title">เกี่ยวกับฉัน</p>
           <div class="about-content">
             <div class="about-text">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              OTOP (One Tambon One Product) จังหวัดพะเยา
+              เป็นโครงการส่งเสริมสินค้าท้องถิ่นในระดับชุมชน
+              ที่ได้รับการสนับสนุนจากรัฐบาลไทย
+              โครงการนี้เน้นการพัฒนาศักยภาพของชุมชนในแต่ละตำบล
+              เพื่อสร้างผลิตภัณฑ์ที่มีคุณภาพและเอกลักษณ์เฉพาะตัว
+              เพื่อกระจายรายได้เข้าสู่ชุมชน
+              และสร้างงานสร้างอาชีพให้กับคนในท้องถิ่น
             </div>
             <div class="row">
               <div class="col-md-6">
@@ -165,7 +171,7 @@
               <div class="col-md-6">
                 <p class="subsection-title">ที่อยู่ร้านค้า</p>
                 <div class="store-address">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed
+                  ถนนเลียบชายกว๊าน ตำบลเวียง อำเภอเมืองพะเยา ประเทศไทย 56000
                 </div>
               </div>
             </div>
@@ -316,7 +322,7 @@
                     </a>
                   </div>
                   <div class="contact">
-                    <a href="javascript:void(0)">
+                    <a href="https://www.youtube.com/">
                       <q-icon name="location_on" class="contact-icon" />
                       090-xxx-xxxx
                     </a>

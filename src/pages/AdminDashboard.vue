@@ -248,26 +248,26 @@ export default {
       salesProductColumns: [
         {
           name: "product_name",
-          label: "Product Name",
+          label: "ชื่อสินค้า", // Product Name
           align: "left",
           field: "product_name",
         },
         {
           name: "total_quantity",
-          label: "Total Quantity",
+          label: "จำนวนทั้งหมด", // Total Quantity
           align: "left",
           field: "total_quantity",
         },
         {
           name: "total_revenue",
-          label: "Total Revenue",
+          label: "รายได้ทั้งหมด", // Total Revenue
           align: "left",
           field: "total_revenue",
           format: (val) => this.formatCurrency(val),
         },
         {
           name: "sale_date",
-          label: "Sale Date",
+          label: "วันที่ขาย", // Sale Date
           align: "left",
           field: "sale_date",
           format: (val) => this.formatDate(val),

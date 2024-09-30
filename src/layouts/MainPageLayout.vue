@@ -155,7 +155,7 @@ export default {
           users.value = {};
           userLoaded.value = false;
           Swal.fire("ออกจากระบบ", "คุณได้ออกจากระบบเสร็จสิ้น", "success");
-          router.push("/");
+          router.push("/login");
         }
       });
     };

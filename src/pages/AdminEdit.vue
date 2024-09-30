@@ -315,7 +315,7 @@ export default {
     onMounted(fetchUserData);
 
     const link = () => {
-      router.push("/main");
+      router.push("/adminmain");
     };
 
     return {

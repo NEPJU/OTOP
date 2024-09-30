@@ -53,13 +53,18 @@
                 square
                 clearable
                 v-model="password"
-                type="password"
+                :type="showPassword ? 'text' : 'password'"
                 label="รหัสผ่าน"
               >
                 <template v-slot:prepend>
                   <q-icon name="lock" />
                 </template>
                 <template v-slot:append>
+                  <q-icon
+                    :name="showPassword ? 'visibility_off' : 'visibility'"
+                    @click="showPassword = !showPassword"
+                    class="cursor-pointer"
+                  />
                   <q-icon
                     name="check_circle"
                     v-if="isPasswordValid"
@@ -121,7 +126,33 @@
                   </q-tooltip>
                 </template>
               </q-input>
+              <q-input
+                square
+                clearable
+                v-model="confirmPassword"
+                :type="showConfirmPassword ? 'text' : 'password'"
+                label="ยืนยันรหัสผ่าน"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="lock" />
+                </template>
+                <template v-slot:append>
+                  <q-icon
+                    :name="
+                      showConfirmPassword ? 'visibility_off' : 'visibility'
+                    "
+                    @click="showConfirmPassword = !showConfirmPassword"
+                    class="cursor-pointer"
+                  />
+                  <q-icon
+                    v-if="confirmPassword !== ''"
+                    :name="isConfirmPasswordValid ? 'check_circle' : 'error'"
+                    :color="isConfirmPasswordValid ? 'green' : 'red'"
+                  />
+                </template>
+              </q-input>
             </q-form>
+
             <div>
               <p :class="{ 'condition-met': isMinLength }">
                 <q-icon name="check_circle" v-if="isMinLength" color="green" />
@@ -186,10 +217,14 @@ export default {
       email: "",
       username: "",
       password: "",
+      confirmPassword: "", // ตัวแปรสำหรับยืนยันรหัสผ่าน
+      confirmPasswordError: "", // ข้อความแสดงข้อผิดพลาดเมื่อรหัสผ่านไม่ตรงกัน
       emailError: "",
       usernameError: "",
       isEmailAvailable: false,
       isUsernameAvailable: false,
+      showPassword: false, // สำหรับควบคุมการแสดงรหัสผ่าน
+      showConfirmPassword: false,
     };
   },
   created() {
@@ -231,6 +266,11 @@ export default {
         this.hasLowerCase &&
         this.hasDigit &&
         this.hasSpecialChar
+      );
+    },
+    isConfirmPasswordValid() {
+      return (
+        this.password === this.confirmPassword && this.confirmPassword !== ""
       );
     },
   },
@@ -277,12 +317,31 @@ export default {
           this.usernameError = "เกิดข้อผิดพลาดในการตรวจสอบข้อมูล!";
         });
     },
+    validateConfirmPassword() {
+      if (this.password !== this.confirmPassword) {
+        this.confirmPasswordError = "รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน!";
+        return false;
+      }
+      this.confirmPasswordError = "";
+      return true;
+    },
+
     registerUser() {
       if (!this.isPasswordValid) {
         Swal.fire({
           icon: "error",
           title: "รหัสผ่านไม่ปลอดภัย",
           text: "รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร มีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และอักขระพิเศษอย่างน้อยหนึ่งตัว",
+        });
+        return;
+      }
+
+      // ตรวจสอบว่ารหัสผ่านและการยืนยันรหัสผ่านตรงกันหรือไม่
+      if (!this.validateConfirmPassword()) {
+        Swal.fire({
+          icon: "error",
+          title: "รหัสผ่านไม่ตรงกัน",
+          text: "กรุณาตรวจสอบรหัสผ่านและยืนยันรหัสผ่าน",
         });
         return;
       }

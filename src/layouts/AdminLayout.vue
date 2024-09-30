@@ -9,26 +9,25 @@
           <q-space />
 
           <div class="YL__toolbar-input-container row no-wrap">
-            <q-input
+            <!-- <q-input
               dense
               outlined
               square
               v-model="search"
               placeholder="ค้นหาผลิตภัณฑ์ได้ที่นี่"
               class="bg-white col"
-            />
-            <q-btn
+            /> -->
+            <!-- <q-btn
               class="YL__toolbar-input-btn"
               color="grey-3"
               text-color="grey-8"
               icon="search"
               unelevated
-            />
-            <q-btn text-color="white" icon="shopping_cart" unelevated />
+            /> -->
           </div>
 
           <q-space />
-
+          <q-btn text-color="white" icon="shopping_cart" unelevated />
           <div class="q-gutter-sm row items-center no-wrap">
             <q-btn color="white" flat>
               ADMIN
@@ -124,7 +123,7 @@ export default {
           isLoggedIn.value = false; // ตั้งค่าเป็น false เมื่อออกจากระบบ
           user.value = {}; // รีเซ็ตข้อมูลผู้ใช้
           Swal.fire("ออกจากระบบ", "คุณได้ออกจากระบบเสร็จสิ้น", "success");
-          router.push("/"); // นำผู้ใช้กลับไปยังหน้าหลัก
+          router.push("/login"); // นำผู้ใช้กลับไปยังหน้าหลัก
         }
       });
     };
