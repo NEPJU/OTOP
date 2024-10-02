@@ -38,13 +38,11 @@
                     class="amount"
                     :disable="product.quantityInCart <= 1"
                   />
-                  <!-- แสดงจำนวนสินค้าที่อยู่ในตะกร้า -->
                   <q-btn
                     color="red-12"
                     class="amount"
                     :label="product.quantityInCart"
                   />
-                  <!-- ปุ่มเพิ่มจำนวนสินค้า -->
                   <q-btn
                     @click="increaseAmount(product)"
                     color="red-12"
@@ -54,7 +52,7 @@
                   />
                   <p style="color: black">
                     สินค้าทั้งหมด {{ product.quantityInCart }} /
-                    {{ product.quantity }}
+                    {{ product.productStock }}
                   </p>
                   <q-btn
                     @click="confirmRemoveProduct(product)"
@@ -72,7 +70,12 @@
                   <div class="row">
                     <div class="col-md-4">
                       <img
-                        :src="product.image_base64"
+                        :src="
+                          Array.isArray(product.images_base64) &&
+                          product.images_base64.length > 0
+                            ? product.images_base64[0]
+                            : ''
+                        "
                         alt="Product Image"
                         class="productimage"
                       />
@@ -130,7 +133,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";
 
 export default {
   data() {
@@ -138,7 +141,7 @@ export default {
       cartItems: [],
       userName: "",
       userEmail: "",
-      Name: "", // Add a new data property for Name
+      Name: "",
     };
   },
   methods: {
@@ -148,32 +151,16 @@ export default {
         const response = await axios.get(
           `http://localhost:3000/cart/${memberId}`
         );
+
+        // ใช้ข้อมูล quantityInCart และ productStock ที่มาจากฐานข้อมูล
         const cartItems = response.data.map((item) => ({
           ...item,
-          quantityInCart: 1, // Set the quantity in cart to the quantity from the server
+          quantityInCart: item.quantityInCart, // จำนวนที่ผู้ใช้เพิ่มเข้าตะกร้า
+          productStock: item.productStock, // จำนวนสินค้าที่มีในสต็อก
+          images_base64: Array.isArray(item.images_base64)
+            ? item.images_base64
+            : JSON.parse(item.images_base64), // แปลง JSON เป็น Array ถ้ายังไม่ได้แปลง
         }));
-
-        // Check if any products were previously added to the cart
-        if (localStorage.getItem("previousCartItems")) {
-          const previousCartItems = JSON.parse(
-            localStorage.getItem("previousCartItems")
-          );
-          // Loop through the previous cart items
-          for (const previousCartItem of previousCartItems) {
-            // Check if the previous cart item is in the current cart items
-            const existingItemIndex = cartItems.findIndex(
-              (item) => item.product_id === previousCartItem.product_id
-            );
-            if (existingItemIndex !== -1) {
-              // Update the quantity in cart for the existing item
-              cartItems[existingItemIndex].quantityInCart =
-                previousCartItem.quantityInCart;
-            } else {
-              // Add the previous cart item to the current cart items
-              cartItems.push(previousCartItem);
-            }
-          }
-        }
 
         this.cartItems = cartItems;
       } catch (error) {
@@ -188,7 +175,7 @@ export default {
         );
         this.userName = response.data.username;
         this.userEmail = response.data.email;
-        this.Name = response.data.name; // Set the Name data property from the API response
+        this.Name = response.data.name;
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -199,11 +186,13 @@ export default {
     increaseAmount(product) {
       if (product.quantityInCart < product.quantity) {
         product.quantityInCart++;
+        this.updateCartQuantity(product);
       }
     },
     decreaseAmount(product) {
       if (product.quantityInCart > 1) {
         product.quantityInCart--;
+        this.updateCartQuantity(product);
       }
     },
     async removeProduct(product) {
@@ -242,14 +231,43 @@ export default {
     },
     async placeOrder() {
       const memberId = sessionStorage.getItem("userId");
-      const orderItems = this.cartItems.map((item) => ({
-        product_id: item.product_id,
-        quantity: item.quantityInCart,
-        price: item.price,
-      }));
-
       try {
+        // ตรวจสอบจำนวนสินค้าล่าสุดจากฐานข้อมูลก่อนสั่งซื้อ
+        const response = await axios.get(
+          `http://localhost:3000/cart/${memberId}`
+        );
+        const latestCartItems = response.data;
+
+        let allAvailable = true;
+
+        // ตรวจสอบว่าสินค้าในตะกร้ามีจำนวนที่พร้อมสั่งซื้อหรือไม่
+        latestCartItems.forEach((item) => {
+          const cartItem = this.cartItems.find(
+            (p) => p.product_id === item.product_id
+          );
+          if (cartItem && item.quantity < cartItem.quantityInCart) {
+            allAvailable = false;
+            cartItem.quantityInCart = item.quantity;
+          }
+        });
+
+        if (!allAvailable) {
+          Swal.fire(
+            "ข้อผิดพลาด",
+            "จำนวนสินค้าบางรายการมีไม่เพียงพอ กรุณาตรวจสอบใหม่อีกครั้ง",
+            "error"
+          );
+          return;
+        }
+
+        const orderItems = this.cartItems.map((item) => ({
+          product_id: item.product_id,
+          quantity: item.quantityInCart,
+          price: item.price,
+        }));
+
         const totalAmount = this.totalAmount;
+
         await axios.post(`http://localhost:3000/order`, {
           memberId,
           cartItems: orderItems,

@@ -34,24 +34,50 @@
             <div class="col-md-6 card-container">
               <q-card class="my-card">
                 <div class="q-pa-sm q-mb-md">
-                  <q-img
-                    :src="product.ProductImage"
-                    alt="Product Image"
-                    class="product-image"
-                  />
+                  <!-- Carousel สำหรับแสดงผลรูปภาพสินค้า พร้อม Thumbnails -->
+                  <q-carousel
+                    v-if="product.images && product.images.length > 0"
+                    v-model="slideProductImages"
+                    animated
+                    arrows
+                    infinite
+                    navigation
+                  >
+                    <q-carousel-slide
+                      v-for="(image, index) in product.images"
+                      :key="index"
+                      :name="index"
+                      :img-src="image"
+                    />
+                  </q-carousel>
+                  <div class="thumbnails-container q-mt-sm">
+                    <q-btn
+                      v-for="(thumb, index) in product.images"
+                      :key="index"
+                      flat
+                      @click="slideProductImages = index"
+                      class="thumbnail-btn"
+                    >
+                      <q-img
+                        :src="thumb"
+                        alt="Thumbnail Image"
+                        class="thumbnail-img"
+                      />
+                    </q-btn>
+                  </div>
                 </div>
                 <q-card-section>
                   <div class="row">
                     <div class="col text-h6 ellipsis product-name">
-                      {{ product.ProductName }}
+                      <!-- {{ product.ProductName }} -->
                     </div>
                   </div>
-                  <q-rating
+                  <!-- <q-rating
                     v-model="stars"
                     :max="5"
                     size="32px"
                     color="orange"
-                  />
+                  /> -->
                 </q-card-section>
               </q-card>
             </div>
@@ -62,6 +88,7 @@
               </p>
               <p class="price">฿{{ product.ProductPrice }}</p>
               <p class="quantity">คงเหลือ {{ product.ProductQuantity }} ชิ้น</p>
+
               <!-- เช็คว่ามีการให้คะแนนหรือไม่ -->
               <div
                 v-if="
@@ -87,6 +114,7 @@
               <div v-else>
                 <p>ยังไม่มีการรีวิว</p>
               </div>
+
               <div class="amount-controls q-mt-md">
                 <q-btn
                   @click="decreaseAmount"
@@ -110,9 +138,11 @@
                   class="amount-btn"
                 />
               </div>
+
               <q-btn color="red-12" class="total-price q-mt-md"
                 >รวมราคา: ฿{{ selectedAmount * product.ProductPrice }}</q-btn
               >
+
               <div class="order-buttons q-mt-md">
                 <q-btn
                   color="red-12"
@@ -139,13 +169,23 @@
             </div>
           </div>
 
+          <!-- แสดงส่วนความคิดเห็นและรีวิว -->
           <h2 class="q-mt-lg comment-heading">แสดงความคิดเห็น</h2>
           <div class="comment-section q-pa-sm">
+            <!-- ช่องให้คะแนนภายในความคิดเห็น -->
+
             <q-input
               v-model="comment"
               placeholder="เขียนความคิดเห็น"
               filled
               stack-label
+            />
+            <q-rating
+              v-model="stars"
+              :max="5"
+              color="orange"
+              size="24px"
+              class="q-mb-sm"
             />
           </div>
           <div class="comment-buttons q-mt-sm">
@@ -222,6 +262,7 @@ export default {
     const products = ref([]);
     const router = useRouter();
     const slide = ref(1);
+    const slideProductImages = ref(0);
     const autoplay = ref(true);
     const selectedAmount = ref(0);
     const stars = ref(0);
@@ -294,38 +335,59 @@ export default {
     });
 
     const addToCart = async (product) => {
+      if (selectedAmount.value < 1) {
+        Swal.fire({
+          icon: "error",
+          title: "กรุณาเลือกจำนวนสินค้าอย่างน้อย 1 ชิ้น",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        return;
+      }
+
       try {
         const memberId = sessionStorage.getItem("userId");
-        const isProductInCart = cart.value.some(
-          (cartItem) => cartItem.ProductID === product.ProductID
-        );
-        if (isProductInCart) {
+        if (!memberId) {
           Swal.fire({
-            icon: "warning",
-            title: "สินค้านี้ได้อยู่ในตะกร้าอยู่แล้ว",
+            icon: "error",
+            title: "กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ",
             showConfirmButton: false,
             timer: 1500,
           });
           return;
         }
 
-        const response = await axios.post("http://localhost:3000/add-to-cart", {
-          memberId: memberId,
-          productId: product.ProductID,
-          quantity: 1,
-        });
+        // ตรวจสอบว่ามีสินค้าชิ้นนี้อยู่ในตะกร้าแล้วหรือไม่
+        const existingCartItemIndex = cart.value.findIndex(
+          (cartItem) => cartItem.ProductID === product.ProductID
+        );
 
-        if (response.data.success) {
+        if (existingCartItemIndex !== -1) {
+          // หากมีสินค้าอยู่ในตะกร้าแล้ว เพิ่มจำนวนสินค้า
+          cart.value[existingCartItemIndex].ProductQuantity +=
+            selectedAmount.value;
+        } else {
+          // หากยังไม่มีสินค้าในตะกร้า ให้เพิ่มสินค้าใหม่
           cart.value.push({
             ProductID: product.ProductID,
             ProductName: product.ProductName,
             ProductImage: product.ProductImage,
             ProductPrice: product.ProductPrice,
-            ProductQuantity: 1,
+            ProductQuantity: selectedAmount.value,
           });
+        }
 
-          localStorage.setItem("cart", JSON.stringify(cart.value));
+        // บันทึกตะกร้าลงใน localStorage
+        localStorage.setItem("cart", JSON.stringify(cart.value));
 
+        // บันทึกข้อมูลลงในฐานข้อมูล
+        const response = await axios.post("http://localhost:3000/add-to-cart", {
+          memberId: memberId,
+          productId: product.ProductID,
+          quantity: selectedAmount.value, // ส่งจำนวนสินค้าที่เลือก
+        });
+
+        if (response.data.success) {
           Swal.fire({
             icon: "success",
             title: "เพิ่มสินค้าลงในตะกร้าสำเร็จ",
@@ -333,10 +395,16 @@ export default {
             timer: 1500,
           });
         } else {
-          console.log("Failed to add product to cart");
+          console.error("Failed to add product to cart");
         }
       } catch (error) {
         console.error("Error adding to cart:", error);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาดในการเพิ่มสินค้าลงในตะกร้า",
+          text: error.message,
+          showConfirmButton: true,
+        });
       }
     };
 
@@ -516,6 +584,7 @@ export default {
     return {
       products,
       slide,
+      slideProductImages,
       autoplay,
       link,
       increaseAmount,
@@ -750,5 +819,24 @@ export default {
 .d-flex.justify-center {
   display: flex;
   justify-content: center;
+}
+
+.thumbnails-container {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+.thumbnail-btn {
+  margin: 0 5px;
+  padding: 0;
+}
+
+.thumbnail-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 </style>

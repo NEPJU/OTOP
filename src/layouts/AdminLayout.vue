@@ -3,8 +3,8 @@
     <div>
       <q-header elevated class="bg-brown-8">
         <q-toolbar>
-          <router-link to="/adminmain">
-            <q-btn style="color: white">กลับสู่หน้าหลัก</q-btn>
+          <router-link to="/adminshop">
+            <q-btn style="color: white">พรีวิวร้านค้า</q-btn>
           </router-link>
           <q-space />
 
@@ -27,7 +27,7 @@
           </div>
 
           <q-space />
-          <q-btn text-color="white" icon="shopping_cart" unelevated />
+          <!-- <q-btn text-color="white" icon="shopping_cart" unelevated /> -->
           <div class="q-gutter-sm row items-center no-wrap">
             <q-btn color="white" flat>
               ADMIN

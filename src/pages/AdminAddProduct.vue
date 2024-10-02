@@ -63,26 +63,29 @@
             </select>
           </div>
           <div class="input-group">
-            <label for="image">รูปภาพสินค้า:</label>
+            <label for="images">รูปภาพสินค้า:</label>
             <input
               type="file"
               ref="fileInput"
+              multiple
               @change="handleFileChange"
-              id="image"
+              id="images"
               accept="image/*"
             />
           </div>
-          <div v-if="imageBase64" class="image-preview">
-            <img
-              :src="imageBase64"
-              alt="Product Image"
-              style="
-                width: 200px;
-                height: 200px;
-                justify-content: center;
-                display: flex;
-              "
-            />
+          <div v-if="imagesBase64.length" class="image-preview">
+            <div v-for="(image, index) in imagesBase64" :key="index">
+              <img
+                :src="image"
+                alt="Product Image"
+                style="
+                  width: 200px;
+                  height: 200px;
+                  justify-content: center;
+                  display: flex;
+                "
+              />
+            </div>
           </div>
           <button
             class="upload-btn"
@@ -99,6 +102,34 @@
           </div>
         </div>
       </div>
+
+      <!-- ส่วนแสดงรายการผลิตภัณฑ์ทั้งหมด -->
+      <!-- <div class="products-list" style="margin-top: 30px">
+        <h2>รายการผลิตภัณฑ์ทั้งหมด</h2>
+        <div
+          class="product-card"
+          v-for="(product, index) in products"
+          :key="index"
+        >
+          <div class="product-info">
+            <h3>{{ product.product_name }}</h3>
+            <p>{{ product.product_id }}</p>
+            <p>{{ product.description }}</p>
+            <p>ราคา: {{ product.price }} บาท</p>
+            <p>จำนวน: {{ product.quantity }}</p>
+            <p>ประเภท: {{ product.category }}</p>
+          </div>
+          <div v-if="product.images.length" class="product-images">
+            <img
+              v-for="(image, idx) in product.images"
+              :src="image"
+              :key="idx"
+              alt="Product Image"
+              style="width: 100px; height: 100px; margin: 5px"
+            />
+          </div>
+        </div>
+      </div> -->
     </div>
     <div class="col bg-side"></div>
   </div>
@@ -117,24 +148,30 @@ export default {
       price: 0,
       quantity: 0,
       category: "",
-      imageBase64: null,
+      imagesBase64: [],
+      products: [], // เก็บรายการผลิตภัณฑ์ทั้งหมด
     };
+  },
+  created() {
+    this.fetchProducts(); // ดึงข้อมูลผลิตภัณฑ์เมื่อคอมโพเนนต์ถูกสร้างขึ้น
   },
   methods: {
     handleFileChange(event) {
-      const file = event.target.files[0];
-      if (file) {
+      const files = event.target.files;
+      this.imagesBase64 = []; // ล้างข้อมูลรูปภาพก่อนหน้า
+
+      Array.from(files).forEach((file) => {
         const reader = new FileReader();
         reader.onload = () => {
-          this.imageBase64 = reader.result;
+          this.imagesBase64.push(reader.result);
         };
         reader.readAsDataURL(file);
-      }
+      });
     },
     async uploadImage() {
       if (
         !this.productName ||
-        !this.imageBase64 ||
+        !this.imagesBase64.length ||
         !this.price ||
         !this.quantity ||
         !this.category
@@ -156,7 +193,7 @@ export default {
             price: this.price,
             quantity: this.quantity,
             category: this.category,
-            image_base64: this.imageBase64,
+            images_base64: this.imagesBase64,
           }
         );
 
@@ -167,6 +204,9 @@ export default {
         });
 
         console.log(response.data);
+
+        // รีเฟรชรายการผลิตภัณฑ์
+        this.fetchProducts();
 
         // รีเซ็ตข้อมูลฟอร์ม
         this.resetForm();
@@ -185,11 +225,28 @@ export default {
       this.price = 0;
       this.quantity = 0;
       this.category = "";
-      this.imageBase64 = null;
+      this.imagesBase64 = [];
       this.$refs.fileInput.value = null;
     },
     link() {
       this.$router.push("/admincart");
+    },
+    async fetchProducts() {
+      try {
+        const response = await axios.get("http://localhost:3000/products");
+        this.products = response.data; // เก็บข้อมูลผลิตภัณฑ์ทั้งหมดที่ดึงมา
+        product.images = product.images.map((image) => {
+          if (image && image.data) {
+            return (
+              "data:image/jpeg;base64," +
+              btoa(String.fromCharCode(...new Uint8Array(image.data)))
+            );
+          }
+          return image;
+        });
+      } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลผลิตภัณฑ์:", error);
+      }
     },
   },
 };
@@ -258,5 +315,27 @@ export default {
 
 .upload-btn:hover {
   background-color: #0056b3;
+}
+
+.products-list {
+  margin-top: 20px;
+}
+
+.product-card {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.product-info {
+  margin-bottom: 10px;
+}
+
+.product-images img {
+  margin: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 </style>

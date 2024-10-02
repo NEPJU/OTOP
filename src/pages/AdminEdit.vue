@@ -107,7 +107,7 @@
         </div>
 
         <!-- Favorite Products Section -->
-        <div style="margin-top: 20px">
+        <!-- <div style="margin-top: 20px">
           <q-card class="my-card" bordered>
             <div style="font-size: 25px; padding: 15px">สินค้าที่ชื่นชอบ</div>
             <div class="row">
@@ -152,7 +152,7 @@
               </div>
             </div>
           </q-card>
-        </div>
+        </div> -->
         <!-- End Favorite Products Section -->
 
         <q-dialog v-model="showEditDialog">
@@ -315,7 +315,7 @@ export default {
     onMounted(fetchUserData);
 
     const link = () => {
-      router.push("/adminmain");
+      router.push("/admincart");
     };
 
     return {

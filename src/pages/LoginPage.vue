@@ -47,10 +47,10 @@
 
           <q-card-section class="text-center q-pa-none">
             <div class="linkto">
-              <a href="#" data-replace="ลืมรหัสผ่าน"
+              <!-- <a href="#" data-replace="ลืมรหัสผ่าน"
                 ><span>ลืมรหัสผ่าน</span></a
-              >
-              <br />
+              > -->
+              <!-- <br /> -->
               <a href="/" data-replace="ย้อนกลับ"><span>ย้อนกลับ</span></a>
             </div>
           </q-card-section>

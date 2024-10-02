@@ -35,6 +35,7 @@
                 ผลิตภัณฑ์
               </div>
               <div style="padding-bottom: 15px">
+                <!-- Product categories navigation -->
                 <a
                   href="javascript:void(0)"
                   class="mr-2 type"
@@ -83,54 +84,45 @@
                   @click="selectedType = ''"
                   >แสดงสินค้าทั้งหมด</a
                 >
-
                 <span>&nbsp;&nbsp;</span>
-                <q-dropdown>
-                  <q-btn-dropdown
-                    flat
-                    label="เรียงตาม"
-                    color="black"
-                    style="font-size: 16px"
-                  >
-                    <q-list>
-                      <q-item
-                        clickable
-                        v-close-popup
-                        @click="sortByAlphabetical"
-                        ><q-item-label>เรียงตามตัวอักษร</q-item-label></q-item
-                      >
-                      <q-item
-                        clickable
-                        v-close-popup
-                        @click="sortByPriceDescending"
-                        ><q-item-label
-                          >เรียงตามราคา (มากไปน้อย)</q-item-label
-                        ></q-item
-                      >
-                      <q-item
-                        clickable
-                        v-close-popup
-                        @click="sortByPriceAscending"
-                        ><q-item-label
-                          >เรียงตามราคา (น้อยไปมาก)</q-item-label
-                        ></q-item
-                      >
-                      <q-item
-                        clickable
-                        v-close-popup
-                        @click="sortByPurchaseCount"
-                        ><q-item-label>เรียงตามยอดซื้อ</q-item-label></q-item
-                      >
-                      <q-item clickable v-close-popup @click="sortByProductId"
-                        ><q-item-label>สินค้าทั้งหมด</q-item-label></q-item
-                      >
-                    </q-list>
-                  </q-btn-dropdown>
-                </q-dropdown>
+                <q-btn-dropdown
+                  flat
+                  label="เรียงตาม"
+                  color="black"
+                  style="font-size: 16px"
+                >
+                  <q-list>
+                    <q-item clickable v-close-popup @click="sortByAlphabetical">
+                      <q-item-label>เรียงตามตัวอักษร</q-item-label>
+                    </q-item>
+                    <q-item
+                      clickable
+                      v-close-popup
+                      @click="sortByPriceDescending"
+                    >
+                      <q-item-label>เรียงตามราคา (มากไปน้อย)</q-item-label>
+                    </q-item>
+                    <q-item
+                      clickable
+                      v-close-popup
+                      @click="sortByPriceAscending"
+                    >
+                      <q-item-label>เรียงตามราคา (น้อยไปมาก)</q-item-label>
+                    </q-item>
+                    <q-item
+                      clickable
+                      v-close-popup
+                      @click="sortByPurchaseCount"
+                    >
+                      <q-item-label>เรียงตามยอดซื้อ</q-item-label>
+                    </q-item>
+                    <q-item clickable v-close-popup @click="sortByProductId">
+                      <q-item-label>สินค้าทั้งหมด</q-item-label>
+                    </q-item>
+                  </q-list>
+                </q-btn-dropdown>
                 <input
                   v-model="searchTerm"
-                  :options="filteredOptions"
-                  @filter="filter"
                   placeholder="ค้นหาผลิตภัณฑ์"
                   dense
                   class="search-input"
@@ -144,15 +136,6 @@
                 />
                 <div v-if="filteredProducts.length === 0" class="no-results">
                   ไม่พบผลิตภัณฑ์ที่ค้นหา
-
-                  <div
-                    v-for="(option, index) in stringOptions"
-                    :key="index"
-                    style="padding: 5px; border-bottom: 1px solid #ccc"
-                  >
-                    <!-- Display string options here -->
-                    <p>{{ option }}</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -162,7 +145,6 @@
         <div class="q-pa-md example-row-mix-and-match">
           <div class="row justify-center items-center">
             <!-- Product Cards -->
-
             <div
               class="col-12 col-md-6 col-lg-4"
               v-for="(product, index) in filteredProducts"
@@ -170,7 +152,16 @@
               style="padding: 5px"
             >
               <q-card class="product-card">
-                <q-img :src="product.ProductImage" class="product-image">
+                <!-- Product Image -->
+                <q-img
+                  :src="
+                    product.images.length > 0
+                      ? product.images[0]
+                      : '/src/assets/logo/noimage.png'
+                  "
+                  alt="Product Image"
+                  style="height: 450px"
+                >
                   <div class="absolute-bottom text-h6">
                     <span style="font-size: 24px">{{
                       product.ProductName
@@ -204,13 +195,11 @@
                       {{ parseFloat(product.averageRating).toFixed(1) }}/5
                     </p>
                   </div>
-
                   <!-- แสดงข้อความเมื่อไม่มีการรีวิว -->
                   <div v-else>
                     <p>ยังไม่มีการรีวิว</p>
                   </div>
                 </div>
-
                 <div
                   style="
                     margin-bottom: 15px;
@@ -265,7 +254,6 @@
                       </svg>
                     </button>
                   </div>
-
                   <div class="viewer-count">
                     #{{ product.ProductCategory }} ยอดการขาย
                     {{ product.ProductSaleCount }} รายการ
@@ -280,10 +268,9 @@
         <div class="d-flex justify-center">
           <q-pagination v-model="currentPage" :total-pages="totalPages" />
         </div>
-
-        <div class="d-flex justify-center mt-4" style="margin: 15px">
+        <!-- <div class="d-flex justify-center mt-4" style="margin: 15px">
           <q-btn @click="link" color="red" label="กลับหน้าหลัก" />
-        </div>
+        </div> -->
       </div>
       <div class="col-1"></div>
     </div>
@@ -328,8 +315,12 @@ export default {
     const toggleFavorite = async (product) => {
       try {
         const memberId = sessionStorage.getItem("userId");
+        if (!memberId) {
+          console.error("User ID is missing");
+          return;
+        }
+
         if (product.isFavorite) {
-          // Remove from favorites
           await axios.delete(
             `http://localhost:3000/favorites/${memberId}/${product.ProductID}`
           );
@@ -343,9 +334,7 @@ export default {
             showConfirmButton: false,
             timer: 1500,
           });
-          console.log("remove from fav.");
         } else {
-          // Add to favorites
           await axios.post("http://localhost:3000/add-to-favorites", {
             member_id: memberId,
             product_id: product.ProductID,
@@ -358,7 +347,6 @@ export default {
             showConfirmButton: false,
             timer: 1500,
           });
-          console.log("add to fav.");
         }
       } catch (error) {
         console.error("Error toggling favorite:", error);
@@ -369,7 +357,19 @@ export default {
     axios
       .get("http://localhost:3000/products")
       .then((response) => {
-        products.value = response.data;
+        products.value = response.data.map((product) => {
+          if (typeof product.ProductImage === "string") {
+            try {
+              product.images = JSON.parse(product.ProductImage);
+            } catch (e) {
+              console.error("Error parsing ProductImage JSON:", e);
+              product.images = [];
+            }
+          } else {
+            product.images = [];
+          }
+          return product;
+        });
         loadFavorites();
       })
       .catch((error) => {
@@ -406,19 +406,6 @@ export default {
 
     const sortByProductId = () => {
       products.value.sort((a, b) => a.ProductID - b.ProductID);
-    };
-
-    const filterProducts = () => {
-      return products.value.filter((product) => {
-        return (
-          product.ProductName.toLowerCase().includes(
-            searchTerm.value.toLowerCase()
-          ) ||
-          product.ProductCategory.toLowerCase().includes(
-            searchTerm.value.toLowerCase()
-          )
-        );
-      });
     };
 
     const link = () => {
@@ -484,7 +471,6 @@ export default {
       sortByPriceAscending,
       sortByPurchaseCount,
       sortByProductId,
-      filterProducts,
       toggleFavorite,
       link,
       slide,
@@ -494,7 +480,8 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+/* General Styles */
 .col-1 {
   background-image: url("/src/assets/logo/bgside.png");
 }
@@ -504,15 +491,152 @@ export default {
   background-color: #fce7d1;
 }
 
-.my-card {
-  height: 00px;
-  max-width: 500px;
+/* Promo Banner */
+.promo-header {
+  height: 150px;
+}
+
+.promo-banner {
+  background-color: white;
+  text-align: center;
+  font-size: 25px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.promo-text {
+  margin-top: 30px;
+  text-shadow: 1px 1px 50px #000000;
+}
+
+/* Product Card */
+.product-wrapper {
+  padding: 5px;
+}
+
+.product-card {
+  height: 100%;
+  padding: 10px;
+}
+
+.product-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.product-image {
+  height: 450px;
+}
+
+.product-title {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px 0;
+  text-align: center;
+  margin: 0; /* Remove margins to avoid extra space */
+}
+
+.product-description {
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  padding: 0 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-details {
+  font-size: 16px;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5rem 0;
+}
+
+/* Shop Button */
+.shop-button-container {
+  display: flex;
+  justify-content: center;
+  margin: 25px 0 15px;
+}
+
+.shop-button {
+  border-radius: 20px;
+  width: 100%;
+  max-width: 300px;
+  height: 60px;
+  font-size: 1.5rem;
+  background-color: #5a350c;
+  color: white;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.shop-button:hover {
+  background-color: #442609;
+  transform: translateY(-5px);
+}
+
+/* About Section */
+.about-section {
+  background-color: aliceblue;
+  margin-top: 15px;
+  padding: 50px;
+}
+
+.about-content {
+  padding: 20px 50px;
+  text-align: center;
+}
+
+.about-text {
+  padding: 20px;
+  text-align: justify;
+  background-color: #d9d9d9;
+  border-radius: 30px;
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+.subsection-title {
+  font-size: 28px;
+  padding: 16px 0;
+  color: #5a350c;
+}
+
+.store-map {
+  border-radius: 20px;
+  border: 2px solid #000;
+  width: 100%;
+  aspect-ratio: 16/9;
+}
+
+.store-address {
+  padding: 20px;
+  text-align: justify;
+  background-color: #d9d9d9;
+  border-radius: 30px;
+  font-size: 24px;
+}
+
+/* Contact Section */
+.contact-section {
+  background-color: aliceblue;
+}
+
+.contact-content {
+  padding: 45px;
 }
 
 .contact {
   text-align: center;
   background-color: #b19470;
-  padding: 5px 5px 5px 5px;
+  padding: 5px;
   margin-bottom: 20px;
   border-radius: 15px;
 }
@@ -526,91 +650,55 @@ export default {
   font-size: 30px;
 }
 
-.d-flex.justify-center {
-  display: flex;
-  justify-content: center;
-}
-
-.no-underline {
-  text-decoration: none;
-  color: #000000;
-  font-size: 18px;
-}
-
-.container {
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background: white;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.125);
-
-  filter: drop-shadow(0 30px 10px rgba(0, 0, 0, 0.125));
-  max-height: 550px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+.section-title {
   text-align: center;
+  font-size: 30px;
+  padding: 15px 0;
+  color: #5a350c;
+  margin-top: 50px;
 }
 
-.description {
-  color: black;
-  font-size: 16px;
-}
-
-.button-wrapper {
-  margin-top: 18px;
-}
-
+/* Buttons */
 .btn {
   border: none;
   padding: 12px 24px;
   border-radius: 24px;
-  font-size: 12px;
   font-size: 0.8rem;
   letter-spacing: 2px;
   cursor: pointer;
   margin-right: 10px;
-}
-
-.btn + .btn {
-  margin-left: 10px;
+  transition: all 0.3s ease;
 }
 
 .outline {
   background: #fce7d1;
   color: rgba(0, 0, 0, 0.9);
   border: 1px solid rgba(0, 0, 0, 0.6);
-  transition: all 0.3s ease;
 }
 
 .outline:hover {
   transform: scale(1.125);
   color: rgba(0, 0, 0, 0.9);
   border-color: rgba(0, 0, 0, 0.9);
-  transition: all 0.3s ease;
 }
 
 .fill {
   background: rgba(227, 51, 28, 0.9);
   color: rgb(253, 253, 253);
-  filter: drop-shadow(0);
   font-weight: bold;
-  transition: all 0.3s ease;
 }
 
 .fill:hover {
   transform: scale(1.125);
-  border-color: rgba(255, 255, 255, 0.9);
-  filter: drop-shadow(0 10px 5px rgba(0, 0, 0, 0.125));
-  transition: all 0.3s ease;
 }
 
 .icon-container {
   position: absolute;
   bottom: 10px;
   right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .icon-button {
@@ -642,88 +730,135 @@ export default {
   }
 }
 
-.viewer-count {
-  padding: 0px 10px 0px 0px;
-  position: absolute; /* ตำแหน่งเป็น absolute */
-  bottom: 10px; /* จัดตำแหน่งด้านล่าง */
-  left: 10px; /* จัดตำแหน่งด้านซ้าย */
-  font-size: 14px; /* ขนาดตัวอักษร */
-  color: #555; /* สีข้อความ */
+.icon-button {
+  border: 2px solid gray;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
+.icon-button:hover {
+  background-color: red;
+  border-color: red;
+  color: white;
+}
+
+.viewer-count {
+  padding: 10px;
+  bottom: 10px;
+  left: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .promo-banner {
+    font-size: 20px;
+  }
+
+  .shop-button {
+    font-size: 1.25rem;
+    height: 50px;
+  }
+
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .product-image {
+    height: 450px;
+  }
+
+  .product-title {
+    font-size: 20px;
+  }
+
+  .product-description {
+    font-size: 14px;
+  }
+
+  .product-details {
+    font-size: 16px;
+  }
+
+  .about-text,
+  .store-address {
+    font-size: 20px;
+  }
+
+  .subsection-title {
+    font-size: 24px;
+  }
+
+  .contact-content {
+    padding: 30px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .promo-banner {
+    font-size: 18px;
+  }
+
+  .shop-button {
+    font-size: 1rem;
+    height: 45px;
+  }
+
+  .product-title {
+    font-size: 18px;
+  }
+
+  .product-description {
+    font-size: 12px;
+  }
+
+  .product-details {
+    font-size: 14px;
+  }
+
+  .about-text,
+  .store-address {
+    font-size: 18px;
+  }
+
+  .subsection-title {
+    font-size: 20px;
+  }
+
+  .contact-content {
+    padding: 20px;
+  }
+
+  .section-title {
+    font-size: 20px;
+  }
+}
 .type {
   text-decoration: none;
   font-size: 18px;
 }
 
-/* เพิ่มเงื่อนไขสำหรับประเภทที่เลือก */
 .type.active {
-  color: black; /* สีของประเภทที่เลือก */
-  font-weight: bold; /* เพิ่มหน้าตัวหนา */
-}
-
-/* เพิ่มเงื่อนไขสำหรับประเภทที่ไม่ได้เลือก */
-.type:not(.active) {
-  color: gray; /* สีของประเภทที่ไม่ได้เลือก */
-}
-
-.search-input {
-  max-width: calc(
-    100% - 120px
-  ); /* ปรับความกว้างให้พอดีกับขนาดของปุ่มเรียงลำดับ */
-}
-
-.product-card {
-  height: 600px;
-}
-.product-header {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.product-title {
-  flex-grow: 1;
-  font-size: 24px;
+  color: black;
   font-weight: bold;
 }
-.product-filters {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.product-description {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.product-image {
-  height: 300px;
-  object-fit: cover;
-}
-
-.product-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.icon-container {
-  display: flex;
-  align-items: center;
-}
-.icon-button {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-.no-results {
-  font-size: 16px;
-  color: red;
-}
-.ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.type:not(.active) {
+  color: gray;
 }
 </style>

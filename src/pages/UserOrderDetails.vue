@@ -76,7 +76,8 @@
                     <template v-slot:body-cell-image="props">
                       <q-td>
                         <img
-                          :src="props.row.image_base64"
+                          v-if="props.row.images && props.row.images.length > 0"
+                          :src="props.row.images[0]"
                           alt="Product Image"
                           class="product-image"
                         />
@@ -153,7 +154,8 @@
                     <template v-slot:body-cell-image="props">
                       <q-td>
                         <img
-                          :src="props.row.image_base64"
+                          v-if="props.row.images && props.row.images.length > 0"
+                          :src="props.row.images[0]"
                           alt="Product Image"
                           class="product-image"
                         />
@@ -289,7 +291,8 @@
                     <template v-slot:body-cell-image="props">
                       <q-td>
                         <img
-                          :src="props.row.image_base64"
+                          v-if="props.row.images && props.row.images.length > 0"
+                          :src="props.row.images[0]"
                           alt="Product Image"
                           class="product-image"
                         />
@@ -370,7 +373,8 @@
                     <template v-slot:body-cell-image="props">
                       <q-td>
                         <img
-                          :src="props.row.image_base64"
+                          v-if="props.row.images && props.row.images.length > 0"
+                          :src="props.row.images[0]"
                           alt="Product Image"
                           class="product-image"
                         />
@@ -524,7 +528,11 @@ export default {
           const response = await axios.get(
             `http://localhost:3000/order-items/${order.order_id}`
           );
-          order.orderItems = response.data;
+          // แปลงข้อมูล image_base64 เป็น array ของ Base64
+          order.orderItems = response.data.map((item) => ({
+            ...item,
+            images: JSON.parse(item.image_base64), // แปลงจาก JSON เป็น Array
+          }));
         } catch (error) {
           console.error("Error fetching order items:", error);
           order.orderItems = [];

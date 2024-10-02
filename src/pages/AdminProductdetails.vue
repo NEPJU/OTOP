@@ -1,53 +1,83 @@
 <template>
-  <div class="admin-container">
+  <div>
     <div class="row">
       <div class="col-1"></div>
       <div class="col-10">
-        <q-toolbar class="c">
-          <q-toolbar-title>Admin - Manage Product Reviews</q-toolbar-title>
-          <q-btn
+        <q-toolbar class="toolbar">
+          <q-toolbar-title>ดูรายละเอียด</q-toolbar-title>
+          <!-- <q-btn
             color="primary"
             icon="arrow_back"
             label="Back to Admin Dashboard"
             @click="backToAdminDashboard"
             flat
-          />
+          /> -->
         </q-toolbar>
 
-        <q-card v-if="product" class="product-details q-mb-md">
-          <q-card-section>
-            <div class="row q-gutter-md">
-              <div class="col-md-4">
-                <q-img
-                  :src="product.image_base64"
-                  alt="Product Image"
-                  class="product-image"
-                  :ratio="1"
-                  spinner-color="primary"
-                />
+        <!-- Product Details Section -->
+        <div class="product-container">
+          <q-card v-if="product" class="product-details">
+            <q-card-section class="card-section">
+              <!-- Image Gallery for Product -->
+              <div class="image-gallery">
+                <q-carousel
+                  v-model="currentImageIndex"
+                  navigation
+                  arrows
+                  animated
+                  infinite
+                  swipeable
+                  class="carousel-container"
+                >
+                  <q-carousel-slide
+                    v-for="(image, index) in product.images"
+                    :key="index"
+                    :name="index"
+                    :img-src="image"
+                    img-class="carousel-image"
+                  />
+                </q-carousel>
+                <!-- Thumbnail images -->
+                <div class="thumbnails">
+                  <img
+                    v-for="(image, index) in product.images"
+                    :key="index"
+                    :src="image"
+                    :class="{
+                      'thumbnail-active': index === currentImageIndex,
+                    }"
+                    @click="currentImageIndex = index"
+                    class="thumbnail"
+                  />
+                </div>
               </div>
-              <div class="col-md-8">
-                <h3>Product Details</h3>
 
-                <p>
-                  <strong>Product Name:</strong> {{ product?.product_name }}
+              <!-- Product Information -->
+              <div class="product-info-section">
+                <h3 class="section-title">รายละเอียดผลิตภัณฑ์</h3>
+                <p class="product-info">
+                  <strong>ชื่อผลิตภัณฑ์:</strong> {{ product?.product_name }}
                 </p>
-
-                <p><strong>Description:</strong> {{ product?.description }}</p>
-                <p><strong>Price:</strong> {{ product?.price }} บาท</p>
-                <p>
-                  <strong>Quantity Available:</strong>
+                <p class="product-info">
+                  <strong>รายละเอียด:</strong> {{ product?.description }}
+                </p>
+                <p class="product-info">
+                  <strong>ราคา:</strong> {{ product?.price }} บาท
+                </p>
+                <p class="product-info">
+                  <strong>คงเหลือ:</strong>
                   {{ product?.quantity }} ชิ้น
                 </p>
                 <q-rating v-model="stars" readonly size="20px" />
               </div>
-            </div>
-          </q-card-section>
-        </q-card>
+            </q-card-section>
+          </q-card>
+        </div>
 
-        <q-card v-if="reviews.length > 0" class="q-mb-md">
+        <!-- Reviews Section -->
+        <q-card v-if="reviews.length > 0" class="reviews-section">
           <q-card-section>
-            <h3>Reviews</h3>
+            <h3 class="section-title">Reviews</h3>
             <q-list>
               <q-item
                 v-for="review in reviews"
@@ -55,13 +85,13 @@
                 class="review-card"
               >
                 <q-item-section avatar>
-                  <img size="50px" :src="review.profileimg" />
+                  <img style="width: 50px" :src="review.profileimg" />
                 </q-item-section>
 
                 <q-item-section>
-                  <q-item-label>
-                    <strong>User:</strong> {{ review.username }}
-                  </q-item-label>
+                  <q-item-label
+                    ><strong>User:</strong> {{ review.username }}</q-item-label
+                  >
                   <q-item-label>{{ review.review }}</q-item-label>
                   <q-item-label caption>
                     Reviewed on {{ formatDateToThai(review.review_date) }}
@@ -76,6 +106,7 @@
                     icon="delete"
                     label="Delete Review"
                     flat
+                    class="delete-button"
                   />
                 </q-item-section>
               </q-item>
@@ -83,19 +114,21 @@
           </q-card-section>
         </q-card>
 
+        <!-- No Reviews Message -->
         <div v-else>
-          <q-card>
+          <q-card class="no-reviews-card">
             <q-card-section>
               <p>No reviews for this product.</p>
             </q-card-section>
           </q-card>
         </div>
 
+        <!-- Back Button -->
         <q-btn
           @click="backToAdminDashboard"
           color="primary"
-          label="Back to Admin Dashboard"
-          class="q-mt-md"
+          label="ย้อนกลับ"
+          class="q-mt-md back-button"
         />
       </div>
       <div class="col-1"></div>
@@ -114,6 +147,7 @@ export default {
     const product = ref(null);
     const reviews = ref([]);
     const router = useRouter();
+    const currentImageIndex = ref(0);
 
     const formatDateToThai = (dateString) => {
       const date = new Date(dateString);
@@ -130,7 +164,20 @@ export default {
         const response = await axios.get(
           `http://localhost:3000/products/${productId}`
         );
+
         product.value = response.data;
+
+        // ตรวจสอบและแปลง images_base64 หากเป็น JSON String
+        if (product.value.images_base64) {
+          try {
+            product.value.images = JSON.parse(product.value.images_base64);
+          } catch (e) {
+            console.error("Error parsing images_base64 JSON:", e);
+            product.value.images = [];
+          }
+        } else {
+          product.value.images = [];
+        }
       } catch (error) {
         console.error("Error fetching product:", error);
       }
@@ -175,7 +222,7 @@ export default {
     };
 
     const backToAdminDashboard = () => {
-      router.push("/admindash");
+      router.push("/admin");
     };
 
     onMounted(async () => {
@@ -189,6 +236,7 @@ export default {
       formatDateToThai,
       deleteReview,
       backToAdminDashboard,
+      currentImageIndex,
     };
   },
 };
@@ -196,42 +244,162 @@ export default {
 
 <style>
 .admin-container {
-  background-color: #fce7d1;
-
-  border-radius: 8px;
-}
-
-.product-details {
+  background-color: #f5f5f5;
   padding: 20px;
-  border-radius: 8px;
-  background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.review-card {
-  padding: 10px;
-  margin-bottom: 10px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.q-btn {
-  margin-top: 15px;
-}
-
-.c {
-  background-color: brown;
+.toolbar {
+  background-color: #6d4c41;
   color: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .q-toolbar-title {
   font-weight: bold;
+  color: #fff;
+}
+
+.product-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.product-details {
+  width: 80%;
+  max-width: 1200px;
+  padding: 30px;
+  border-radius: 16px;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease-in-out;
+}
+
+.card-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.image-gallery {
+  width: 50%;
+
+  align-items: center;
+}
+
+.carousel-container {
+  max-width: 100%;
+  margin-bottom: 15px;
+}
+
+.carousel-image {
+  object-fit: cover;
+  max-height: 450px;
+}
+
+.thumbnails {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.thumbnail-active {
+  border-color: #2196f3;
+  transform: scale(1.1);
+}
+
+.thumbnail:hover {
+  border-color: #2196f3;
+}
+
+.product-info-section {
+  width: 45%;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.product-info {
+  margin-bottom: 12px;
+  font-size: 18px;
+  color: #444;
+}
+
+.reviews-section {
+  padding: 30px;
+  border-radius: 16px;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 30px;
+}
+
+.review-card {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.review-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.delete-button {
+  transition: transform 0.3s ease;
+}
+
+.delete-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.4);
+}
+
+.no-reviews-card {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.back-button {
+  display: block;
+  margin: 0 auto;
+  margin-top: 20px;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.back-button:hover {
+  background-color: #5d4037;
+  transform: scale(1.05);
 }
 
 .col-10 {
   min-height: 100vh;
-  background-color: #fce7d1;
+  background-color: #f5f5f5;
+  padding: 20px;
 }
 
 .col-1 {
