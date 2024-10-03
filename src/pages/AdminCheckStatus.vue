@@ -67,9 +67,13 @@
                   <p v-if="order.trackingNumber">
                     Tracking Number: {{ order.trackingNumber }}
                   </p>
+                  <p v-if="order.trackingNumber">
+                    บริษัทขนส่ง: {{ order.carrier_name }}
+                  </p>
                 </div>
                 <div class="col-6">
                   <q-btn
+                    v-if="order && order.showDetails !== undefined"
                     @click="toggleOrderDetails(order)"
                     color="red"
                     :label="
@@ -90,11 +94,16 @@
                   separator="cell"
                 />
                 <h5>รายละเอียดการชำระเงิน:</h5>
-                <img
-                  :src="order.payment_image_base64"
-                  class="payment-image"
-                  alt="Payment Image"
-                />
+                <div v-if="order.payment_image_base64">
+                  <img
+                    :src="order.payment_image_base64"
+                    class="payment-image"
+                    alt="Payment Image"
+                  />
+                </div>
+                <div v-else>
+                  <p>ยังไม่มีการชำระเงิน</p>
+                </div>
                 <div class="center-btn" v-if="order.status === 'Waiting'">
                   <q-btn @click="confirmPayment(order)" color="green">
                     ยืนยันการชำระเงิน
@@ -119,15 +128,37 @@
                     />
                     <q-timeline-entry color="blue" icon="local_shipping">
                       <div>
-                        <h6>เลข Tracking</h6>
+                        <h6>เลข Tracking และบริษัทขนส่ง</h6>
+                        <!-- ถ้ายังไม่ได้บันทึก Tracking จะแสดง dropdown ให้เลือกบริษัทได้ -->
+                        <div
+                          v-if="
+                            order.status === 'Shipped' && !order.trackingSaved
+                          "
+                        >
+                          <q-select
+                            v-model="order.carrierName"
+                            :options="couriers"
+                            label="เลือกบริษัทขนส่ง"
+                            outlined
+                            dense
+                            style="margin-bottom: 10px"
+                          />
+                        </div>
+
                         <q-input
                           v-model="order.trackingNumber"
                           placeholder="กรอกเลข Tracking"
                           outlined
                           :readonly="order.status === 'Delivered'"
                         />
+
                         <q-btn
-                          v-if="order.status === 'Shipped'"
+                          v-if="
+                            order.status === 'Shipped' &&
+                            order.carrierName &&
+                            order.trackingNumber &&
+                            !order.trackingSaved
+                          "
                           @click="confirmPayment(order)"
                           color="green"
                           label="บันทึก Tracking"
@@ -135,7 +166,7 @@
                       </div>
                     </q-timeline-entry>
                     <q-timeline-entry
-                      v-if="order.status === 'Delivered'"
+                      v-if="order && order.status === 'Delivered'"
                       color="orange"
                       icon="check_circle"
                       title="จัดส่งสำเร็จ"
@@ -191,6 +222,13 @@ export default {
         { name: "price", label: "ราคา", field: "price", align: "right" },
         { name: "quantity", label: "จำนวน", field: "quantity", align: "right" },
       ],
+      couriers: [
+        { label: "ไปรษณีย์ไทย", value: "ไปรษณีย์ไทย" },
+        { label: "Kerry Express", value: "Kerry Express" },
+        { label: "J&T Express", value: "J&T Express" },
+        { label: "Flash Express", value: "Flash Express" },
+        { label: "Ninja Van", value: "Ninja Van" },
+      ],
     };
   },
   methods: {
@@ -203,8 +241,11 @@ export default {
           ...order,
           order_date: format(new Date(order.order_date), "dd MMMM yyyy"),
           showDetails: false,
-          orderItems: [],
+          orderItems: order.orderItems || [], // กำหนดค่าให้เป็น array ว่างถ้าไม่มีข้อมูล
           trackingNumber: order.tracking_number || "",
+          carrierName: order.carrier_name
+            ? { label: order.carrier_name, value: order.carrier_name }
+            : null,
         }));
         this.filterOrders("Waiting"); // Default to showing Waiting orders
       } catch (error) {
@@ -243,8 +284,9 @@ export default {
         let payload = {};
 
         if (order.status === "Waiting") {
+          // เปลี่ยนสถานะเป็น Shipped
           payload = { status: "Shipped" };
-          const response = await axios.put(
+          await axios.put(
             `http://localhost:3000/orders/${order.order_id}/confirm-payment`,
             payload
           );
@@ -254,17 +296,32 @@ export default {
             title: "สำเร็จ",
             text: "สถานะได้ถูกเปลี่ยนเป็น Shipped และจำนวนสินค้าถูกปรับแล้ว",
           });
-        } else if (order.status === "Shipped" && order.trackingNumber) {
-          payload = { tracking_number: order.trackingNumber };
-          const response = await axios.put(
+        } else if (
+          order.status === "Shipped" &&
+          order.trackingNumber &&
+          order.carrierName &&
+          order.carrierName.value // ตรวจสอบว่ามีค่า value อยู่หรือไม่
+        ) {
+          // เพิ่มข้อมูล tracking number และ carrier name
+          payload = {
+            tracking_number: order.trackingNumber,
+            carrier_name: order.carrierName.value,
+          };
+          await axios.put(
             `http://localhost:3000/orders/${order.order_id}/add-tracking`,
             payload
           );
-          order.trackingNumber = payload.tracking_number;
+          order.trackingSaved = true; // กำหนดให้ทราบว่าบันทึก Tracking แล้ว
           Swal.fire({
             icon: "success",
             title: "สำเร็จ",
-            text: "เลข Tracking ได้ถูกเพิ่มเรียบร้อย",
+            text: "เลข Tracking และบริษัทจัดส่งได้ถูกเพิ่มเรียบร้อย",
+          });
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "ข้อมูลไม่ครบถ้วน",
+            text: "กรุณากรอกเลข Tracking และเลือกบริษัทจัดส่ง",
           });
         }
 
@@ -277,6 +334,7 @@ export default {
         });
       }
     },
+
     async cancelOrder(order) {
       try {
         const payload = { status: "Cancelled" };

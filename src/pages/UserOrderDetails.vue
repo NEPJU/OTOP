@@ -50,7 +50,19 @@
                     <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-                    <p>สถานะ : <q-btn color="red-9">ถูกยกเลิก</q-btn></p>
+                    <p>
+                      สถานะ :
+                      <span
+                        v-if="order.status === 'Cancelled'"
+                        class="status-dot"
+                        :style="{ backgroundColor: 'red' }"
+                      ></span>
+                      <span
+                        v-if="order.status === 'Cancelled'"
+                        class="status-text"
+                        >ถูกยกเลิก</span
+                      >
+                    </p>
                   </div>
                   <div class="col-6">
                     <q-btn
@@ -122,11 +134,25 @@
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
                     <p>
                       สถานะ :
-                      <span v-if="order.status === 'Pending'"
-                        ><q-btn color="yellow-10">รอการชำระเงิน</q-btn></span
+                      <span
+                        v-if="order.status === 'Pending'"
+                        class="status-dot"
+                        :style="{ backgroundColor: 'yellow' }"
+                      ></span>
+                      <span
+                        v-if="order.status === 'Pending'"
+                        class="status-text"
+                        >รอการชำระเงิน</span
                       >
-                      <span v-if="order.status === 'Waiting'"
-                        ><q-btn color="yellow-10">รอการตรวจสอบ</q-btn></span
+                      <span
+                        v-if="order.status === 'Waiting'"
+                        class="status-dot"
+                        :style="{ backgroundColor: 'orange' }"
+                      ></span>
+                      <span
+                        v-if="order.status === 'Waiting'"
+                        class="status-text"
+                        >รอการตรวจสอบ</span
                       >
                     </p>
                   </div>
@@ -261,10 +287,28 @@
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
                     <p>
-                      สถานะ : <q-btn color="blue">อยู่ระหว่างการจัดส่ง</q-btn>
+                      สถานะ :
+                      <span
+                        v-if="order.status === 'Shipped'"
+                        class="status-dot"
+                        :style="{ backgroundColor: 'blue' }"
+                      ></span>
+                      <span
+                        v-if="order.status === 'Shipped'"
+                        class="status-text"
+                        >อยู่ระหว่างการจัดส่ง</span
+                      >
                     </p>
                     <p style="margin-top: -5px">
                       เลข Tracking : {{ order.trackingNumber }}
+                    </p>
+                    <p v-if="order.carrier_name">
+                      บริษัทขนส่ง:
+                      <q-btn
+                        color="blue"
+                        :label="`${order.carrier_name}`"
+                        @click="goToTracking(order)"
+                      />
                     </p>
                   </div>
                   <div class="col-6">
@@ -347,7 +391,19 @@
                     <h5>ออเดอร์ที่ : {{ order.order_id }}</h5>
                     <p>วันที่ : {{ order.order_date }}</p>
                     <p>เงินรวมทั้งหมด : {{ order.total_amount }} บาท</p>
-                    <p>สถานะ : <q-btn color="green">จัดส่งสำเร็จ</q-btn></p>
+                    <p>
+                      สถานะ :
+                      <span
+                        v-if="order.status === 'Delivered'"
+                        class="status-dot"
+                        :style="{ backgroundColor: 'green' }"
+                      ></span>
+                      <span
+                        v-if="order.status === 'Delivered'"
+                        class="status-text"
+                        >จัดส่งสำเร็จ</span
+                      >
+                    </p>
                   </div>
                   <div class="col-6">
                     <q-btn
@@ -543,6 +599,51 @@ export default {
         }
       }
     },
+    goToTracking(order) {
+      let trackingLink = "";
+      const trackingNumber = order.trackingNumber;
+
+      switch (order.carrier_name) {
+        case "ไปรษณีย์ไทย":
+          trackingLink = `https://track.thailandpost.co.th/?trackNumber=${trackingNumber}`;
+          break;
+        case "Kerry Express":
+          trackingLink = `https://th.kerryexpress.com/th/track/?track=${trackingNumber}`;
+          break;
+        case "J&T Express":
+          trackingLink = `https://www.jtexpress.co.th/index/query/gzquery.html?waybillNo=${trackingNumber}`;
+          break;
+        case "Flash Express":
+          trackingLink = `https://www.flashexpress.co.th/tracking/?se=${trackingNumber}`;
+          break;
+        case "Ninja Van":
+          trackingLink = `https://www.ninjavan.co/th-th/tracking?id=${trackingNumber}`;
+          break;
+        default:
+          trackingLink = `https://maayoung.com/tracking/?se=${trackingNumber}`;
+          break;
+      }
+
+      const message = `ตรวจสอบสถานะพัสดุได้ที่: ${trackingLink}`;
+
+      // คัดลอกข้อความไปยังคลิปบอร์ดและเปิดลิงก์
+      navigator.clipboard
+        .writeText(message)
+        .then(() => {
+          window.open(trackingLink, "_blank");
+          this.$q.notify({
+            type: "positive",
+            message: "ลิงก์ได้ถูกคัดลอกแล้ว และเปิดหน้าเพื่อติดตามสถานะพัสดุ",
+          });
+        })
+        .catch((err) => {
+          this.$q.notify({
+            type: "negative",
+            message: "ไม่สามารถคัดลอกลิงก์ได้ กรุณาลองใหม่อีกครั้ง",
+          });
+        });
+    },
+
     toggleOrdersVisibility() {
       this.ordersVisible = !this.ordersVisible;
       this.shippedOrdersVisible = false;
@@ -782,5 +883,19 @@ export default {
   font-weight: bold;
   text-align: right;
   margin-top: 10px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.status-text {
+  vertical-align: middle;
+  margin-right: 15px;
+  font-weight: bold;
 }
 </style>
