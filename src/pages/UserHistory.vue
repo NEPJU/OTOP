@@ -52,11 +52,13 @@
                   >
                     <template v-slot:body-cell-image="props">
                       <q-td>
-                        <img
-                          :src="props.row.image_base64"
-                          alt="Product Image"
-                          class="product-image"
-                        />
+                        <div class="images-wrapper">
+                          <img
+                            :src="props.row.images[0]"
+                            alt="Product Image"
+                            class="product-image"
+                          />
+                        </div>
                       </q-td>
                     </template>
                     <template v-slot:body-cell-product_name="props">
@@ -136,11 +138,15 @@ export default {
             const itemsResponse = await axios.get(
               `http://localhost:3000/order-items/${order.order_id}`
             );
+            const orderItems = itemsResponse.data.map((item) => ({
+              ...item,
+              images: JSON.parse(item.image_base64), // Parse JSON string into array
+            }));
             return {
               ...order,
               order_date: format(new Date(order.order_date), "dd MMMM yyyy"),
               showDetails: false,
-              orderItems: itemsResponse.data, // Include items in the order
+              orderItems: orderItems, // Include parsed items in the order
             };
           })
         );
