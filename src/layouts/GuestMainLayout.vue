@@ -28,13 +28,14 @@
           </div>
 
           <q-space />
-          <q-btn text-color="white" icon="shopping_cart" unelevated />
+          <!-- <q-btn text-color="white" icon="shopping_cart" unelevated /> -->
           <div class="q-gutter-sm row items-center no-wrap">
             <q-btn flat>
-              <q-avatar size="26px">
+              <!-- <q-avatar size="26px">
                 <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
               </q-avatar>
-              Login
+              Login -->
+              ผู้ใช้งานทั่วไป
 
               <!-- <q-tooltip>Account</q-tooltip> -->
               <q-menu>

@@ -2,7 +2,7 @@
   <q-layout view="hHh lpR fFf" class="bg">
     <q-header elevated class="bg-brown-8">
       <q-toolbar>
-        <router-link to="/main">
+        <router-link to="/shop">
           <q-btn style="color: white">กลับสู่หน้าหลัก</q-btn>
         </router-link>
         <!-- Other toolbar content -->
@@ -50,6 +50,14 @@
             <q-tooltip>จัดการโปรไฟล์</q-tooltip>
             <q-menu>
               <q-list style="min-width: 100px">
+                <router-link
+                  to="/main"
+                  style="text-decoration: none; color: black"
+                >
+                  <q-item clickable v-close-popup>
+                    <q-item-section>เกี่ยวกับฉัน</q-item-section>
+                  </q-item>
+                </router-link>
                 <router-link
                   to="/user"
                   style="text-decoration: none; color: black"

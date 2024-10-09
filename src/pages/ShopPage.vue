@@ -457,6 +457,12 @@ export default {
         }
       } catch (error) {
         console.error("Error adding to cart:", error);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาดในการเพิ่มสินค้าลงในตะกร้า",
+          text: "การเพิ่มสินค้าในตะกร้าของท่านเกินจำนวนทั้งหมด ",
+          showConfirmButton: true,
+        });
       }
     };
 

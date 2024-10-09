@@ -118,7 +118,15 @@
                 style="padding: 15px"
               >
                 <q-card>
-                  <q-img :src="favorite.ProductImage" style="height: 150px" />
+                  <img
+                    :src="
+                      favorite.ProductImage && favorite.ProductImage.length > 0
+                        ? favorite.ProductImage[0]
+                        : ''
+                    "
+                    alt="Product Image"
+                    style="width: 450px; height: 300px"
+                  />
                   <q-card-section>
                     <div class="text-h6">{{ favorite.ProductName }}</div>
                     <div>{{ favorite.ProductDescription }}</div>
@@ -242,13 +250,20 @@ export default {
       }
     };
 
-    // Fetch favorite products based on user ID
     const fetchFavoriteProducts = async (userId) => {
       try {
         const response = await axios.get(
           `http://localhost:3000/favorites/${userId}`
         );
-        favorites.value = response.data;
+
+        favorites.value = response.data.map((favorite) => ({
+          ProductID: favorite.ProductID,
+          ProductName: favorite.ProductName,
+          ProductDescription: favorite.ProductDescription,
+          ProductPrice: favorite.ProductPrice,
+          ProductImage: JSON.parse(favorite.ProductImage), // แปลงจาก JSON string เป็น array
+        }));
+
         favoritesLoaded.value = true;
       } catch (error) {
         console.error("Error fetching favorite products:", error);
@@ -315,7 +330,7 @@ export default {
     onMounted(fetchUserData);
 
     const link = () => {
-      router.push("/main");
+      router.push("/shop");
     };
 
     return {

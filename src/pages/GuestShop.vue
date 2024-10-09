@@ -171,8 +171,13 @@
             >
               <q-card class="container">
                 <q-img
-                  :src="product.ProductImage"
-                  style="width: 300px; height: 300px"
+                  :src="
+                    product.images.length > 0
+                      ? product.images[0]
+                      : '/src/assets/logo/noimage.png'
+                  "
+                  alt="Product Image"
+                  style="height: 450px"
                 >
                   <div class="absolute-bottom text-h6">
                     {{ product.ProductName }}

@@ -203,25 +203,40 @@
               class="review-card q-mt-md"
             >
               <div class="review-content">
+                <!-- แสดงรูปโปรไฟล์ของผู้ใช้ -->
                 <img
                   :src="review.profileimg"
                   alt="Profile Image"
                   class="profile-img"
                 />
+
+                <!-- แสดงรายละเอียดของรีวิว -->
                 <div class="review-details">
                   <p><strong>ผู้ใช้:</strong> {{ review.username }}</p>
+                  <!-- แสดงชื่อผู้ใช้ -->
                   <p>{{ review.review }}</p>
+                  <!-- แสดงข้อความรีวิว -->
                   <small
                     >รีวิวเมื่อ
                     {{ formatDateToThai(review.review_date) }}</small
                   >
-                  <q-rating
-                    :value="review.rating"
+                  <!-- แสดงวันที่รีวิว -->
+
+                  <!-- แสดงคะแนนของผู้ใช้ -->
+                  <!-- <q-rating
+                    :value="review.rating ?? 0"
                     readonly
                     size="16px"
                     color="orange"
-                  />
+                  /> -->
+                  <span v-for="n in 5" :key="n" class="star">
+                    <i v-if="n <= review.rating" class="fas fa-star filled"></i>
+                    <i v-else class="far fa-star empty"></i>
+                    <!-- ปรับไอคอนที่ใช้ให้เป็น "far" สำหรับดาวที่ยังไม่ได้เลือก -->
+                  </span>
                 </div>
+
+                <!-- ปุ่มลบรีวิว เฉพาะผู้ใช้ที่ล็อกอิน -->
                 <div v-if="review.username === currentUser?.username">
                   <q-btn
                     color="negative"
@@ -265,7 +280,7 @@ export default {
     const slideProductImages = ref(0);
     const autoplay = ref(true);
     const selectedAmount = ref(0);
-    const stars = ref(0);
+    const stars = ref(1);
     const comment = ref("");
     const cart = ref([]);
     const favorites = ref([]);
@@ -320,6 +335,12 @@ export default {
     const increaseAmount = () => {
       if (selectedAmount.value < product.value.ProductQuantity) {
         selectedAmount.value++;
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "สินค้าคงเหลือไม่พอ",
+          text: "ไม่สามารถเพิ่มจำนวนสินค้าที่เกินจากสต็อกได้",
+        });
       }
     };
 
@@ -393,6 +414,9 @@ export default {
             title: "เพิ่มสินค้าลงในตะกร้าสำเร็จ",
             showConfirmButton: false,
             timer: 1500,
+          }).then(() => {
+            // นำผู้ใช้ไปยังหน้าตะกร้าสินค้า
+            router.push("/cart");
           });
         } else {
           console.error("Failed to add product to cart");
@@ -402,8 +426,12 @@ export default {
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาดในการเพิ่มสินค้าลงในตะกร้า",
-          text: error.message,
+          text: "การเพิ่มสินค้าในตะกร้าของท่านเกินจำนวนทั้งหมด",
+
           showConfirmButton: true,
+        }).then(() => {
+          // นำผู้ใช้ไปยังหน้าตะกร้าสินค้า
+          router.push("/cart");
         });
       }
     };
@@ -525,7 +553,8 @@ export default {
         const response = await axios.get(
           `http://localhost:3000/product-reviews/${product.value.ProductID}`
         );
-        reviews.value = response.data;
+        console.log(response.data); // Check if each review has a 'rating' value
+        reviews.value = response.data; // Ensure this contains the rating data
       } catch (error) {
         console.error("Error fetching reviews:", error);
       }
@@ -838,5 +867,13 @@ export default {
   height: 50px;
   object-fit: cover;
   border-radius: 4px;
+}
+
+.filled {
+  color: orange;
+}
+
+.empty {
+  color: lightgray;
 }
 </style>

@@ -36,7 +36,15 @@
               :key="index"
             >
               <q-card class="product-card">
-                <q-img :src="product.ProductImage" class="product-image">
+                <q-img
+                  :src="
+                    product.images.length > 0
+                      ? product.images[0]
+                      : '/src/assets/logo/noimage.png'
+                  "
+                  alt="Product Image"
+                  style="height: 450px"
+                >
                   <div class="absolute-bottom text-h6 product-title">
                     <span>{{ product.ProductName }}</span>
                   </div>
@@ -188,7 +196,15 @@
               :key="index"
             >
               <q-card class="product-card">
-                <q-img :src="product.ProductImage" class="product-image">
+                <q-img
+                  :src="
+                    product.images.length > 0
+                      ? product.images[0]
+                      : '/src/assets/logo/noimage.png'
+                  "
+                  alt="Product Image"
+                  style="height: 450px"
+                >
                   <div class="absolute-bottom text-h6 product-title">
                     <span>{{ product.ProductName }}</span>
                   </div>
@@ -376,7 +392,15 @@ export default {
     const fetchProducts = async () => {
       try {
         const response = await axios.get("http://localhost:3000/products");
-        products.value = response.data;
+
+        products.value = response.data.map((product) => ({
+          ...product,
+          // แปลง image_base64 จาก JSON string เป็น array
+          images_base64: product.image_base64
+            ? JSON.parse(product.image_base64)
+            : [],
+        }));
+
         randomizeProducts(); // Randomize products after fetching
         loadFavorites(); // Load favorites after fetching products
       } catch (error) {
@@ -410,6 +434,9 @@ export default {
             title: "สินค้านี้ได้อยู่ในตะกร้าอยู่แล้ว",
             showConfirmButton: false,
             timer: 1500,
+          }).then(() => {
+            // นำผู้ใช้ไปยังหน้าตะกร้าสินค้า
+            router.push("/cart");
           });
           return;
         }
@@ -442,6 +469,16 @@ export default {
         }
       } catch (error) {
         console.error("Error adding to cart:", error);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาดในการเพิ่มสินค้าลงในตะกร้า",
+          text: "การเพิ่มสินค้าในตะกร้าของท่านเกินจำนวนทั้งหมด",
+
+          showConfirmButton: true,
+        }).then(() => {
+          // นำผู้ใช้ไปยังหน้าตะกร้าสินค้า
+          router.push("/cart");
+        });
       }
     };
 

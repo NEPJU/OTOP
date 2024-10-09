@@ -49,8 +49,13 @@
           >
             <q-card class="container">
               <q-img
-                :src="product.ProductImage"
-                style="width: 300px; height: 300px"
+                :src="
+                  product.images.length > 0
+                    ? product.images[0]
+                    : '/src/assets/logo/noimage.png'
+                "
+                alt="Product Image"
+                style="height: 450px"
               >
                 <div class="absolute-bottom text-h6">
                   {{ product.ProductName }}
@@ -120,7 +125,7 @@
                   </div>
 
                   <div class="viewer-count">
-                    ยอดซื้อ {{ product.purchaseCount }} รายการ
+                    ยอดซื้อ {{ product.ProductSaleCount }} รายการ
                   </div>
                 </div>
               </div>
@@ -227,8 +232,13 @@
             >
               <q-card class="container">
                 <q-img
-                  :src="product.ProductImage"
-                  style="width: 300px; height: 300px"
+                  :src="
+                    product.images.length > 0
+                      ? product.images[0]
+                      : '/src/assets/logo/noimage.png'
+                  "
+                  alt="Product Image"
+                  style="height: 450px"
                 >
                   <div class="absolute-bottom text-h6">
                     {{ product.ProductName }}
@@ -300,7 +310,7 @@
                     </div>
 
                     <div class="viewer-count">
-                      ยอดซื้อ {{ product.purchaseCount }} รายการ
+                      ยอดซื้อ {{ product.ProductSaleCount }} รายการ
                     </div>
                   </div>
                 </div>
@@ -423,7 +433,13 @@ export default {
     onMounted(async () => {
       try {
         const response = await axios.get("http://localhost:3000/products");
-        products.value = response.data;
+        products.value = response.data.map((product) => ({
+          ...product,
+          // แปลง image_base64 จาก JSON string เป็น array
+          images_base64: product.image_base64
+            ? JSON.parse(product.image_base64)
+            : [],
+        }));
         randomizeProducts();
       } catch (error) {
         console.error("Error fetching products:", error);

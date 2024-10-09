@@ -225,7 +225,7 @@ export default {
       }
     },
     link() {
-      this.$router.push("/main");
+      this.$router.push("/shop");
     },
     increaseAmount(product) {
       if (product.quantityInCart < product.productStock) {
