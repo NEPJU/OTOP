@@ -74,19 +74,25 @@
             />
           </div>
           <div v-if="imagesBase64.length" class="image-preview">
-            <div v-for="(image, index) in imagesBase64" :key="index">
+            <div
+              v-for="(image, index) in imagesBase64"
+              :key="index"
+              class="image-container"
+            >
               <img
                 :src="image"
                 alt="Product Image"
                 style="
                   width: 200px;
                   height: 200px;
-                  justify-content: center;
                   display: flex;
+                  justify-content: center;
                 "
               />
+              <button @click="removeImage(index)" class="remove-btn">ลบ</button>
             </div>
           </div>
+
           <button
             class="upload-btn"
             style="margin-top: 15px"
@@ -148,26 +154,32 @@ export default {
       price: 0,
       quantity: 0,
       category: "",
-      imagesBase64: [],
-      products: [], // เก็บรายการผลิตภัณฑ์ทั้งหมด
+      imagesBase64: [], // Store the base64 encoded images
+      products: [], // Store the list of products
     };
   },
   created() {
-    this.fetchProducts(); // ดึงข้อมูลผลิตภัณฑ์เมื่อคอมโพเนนต์ถูกสร้างขึ้น
+    this.fetchProducts(); // Fetch the list of products on component creation
   },
   methods: {
+    // Handle the image file input and convert to base64
     handleFileChange(event) {
       const files = event.target.files;
-      this.imagesBase64 = []; // ล้างข้อมูลรูปภาพก่อนหน้า
 
+      // Append new files to the existing array of images
       Array.from(files).forEach((file) => {
         const reader = new FileReader();
         reader.onload = () => {
-          this.imagesBase64.push(reader.result);
+          this.imagesBase64.push(reader.result); // Append each file's base64 result
         };
         reader.readAsDataURL(file);
       });
     },
+    // Remove an image from the preview
+    removeImage(index) {
+      this.imagesBase64.splice(index, 1); // Remove the image at the given index
+    },
+    // Handle the image upload process
     async uploadImage() {
       if (
         !this.productName ||
@@ -178,8 +190,8 @@ export default {
       ) {
         await Swal.fire({
           icon: "error",
-          title: "ข้อมูลไม่ครบถ้วน",
-          text: "กรุณากรอกข้อมูลที่จำเป็นให้ครบ",
+          title: "Incomplete Information",
+          text: "Please fill in all required fields.",
         });
         return;
       }
@@ -199,26 +211,27 @@ export default {
 
         await Swal.fire({
           icon: "success",
-          title: "อัปโหลดสำเร็จ",
-          text: "รูปภาพได้ถูกอัปโหลดเรียบร้อยแล้ว",
+          title: "Upload Successful",
+          text: "Product images have been uploaded.",
         });
 
         console.log(response.data);
 
-        // รีเฟรชรายการผลิตภัณฑ์
+        // Refresh the product list
         this.fetchProducts();
 
-        // รีเซ็ตข้อมูลฟอร์ม
+        // Reset the form
         this.resetForm();
       } catch (error) {
         await Swal.fire({
           icon: "error",
-          title: "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ",
-          text: "กรุณาลองใหม่ภายหลัง",
+          title: "Error Uploading Images",
+          text: "Please try again later.",
         });
-        console.error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ:", error);
+        console.error("Error uploading images:", error);
       }
     },
+    // Reset the form fields and file input
     resetForm() {
       this.productName = "";
       this.description = "";
@@ -226,26 +239,18 @@ export default {
       this.quantity = 0;
       this.category = "";
       this.imagesBase64 = [];
-      this.$refs.fileInput.value = null;
+      this.$refs.fileInput.value = null; // Reset file input
     },
     link() {
       this.$router.push("/admincart");
     },
+    // Fetch all products (example)
     async fetchProducts() {
       try {
         const response = await axios.get("http://localhost:3000/products");
-        this.products = response.data; // เก็บข้อมูลผลิตภัณฑ์ทั้งหมดที่ดึงมา
-        product.images = product.images.map((image) => {
-          if (image && image.data) {
-            return (
-              "data:image/jpeg;base64," +
-              btoa(String.fromCharCode(...new Uint8Array(image.data)))
-            );
-          }
-          return image;
-        });
+        this.products = response.data; // Store the products retrieved from the server
       } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลผลิตภัณฑ์:", error);
+        console.error("Error fetching products:", error);
       }
     },
   },
@@ -337,5 +342,28 @@ export default {
   margin: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  background-color: darkred;
 }
 </style>

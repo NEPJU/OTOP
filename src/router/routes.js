@@ -1,12 +1,17 @@
 const routes = [
-  {
-    path: "/",
-    component: () => import("pages/IndexPage.vue"),
-    // children: [{ path: "", component: () => import("pages/IndexPage.vue") }],
-  },
+  // {
+  //   path: "/",
+  //   component: () => import("pages/IndexPage.vue"),
+  //   // children: [{ path: "", component: () => import("pages/IndexPage.vue") }],
+  // },
   {
     path: "/:catchAll(.*)*",
     component: () => import("pages/ErrorNotFound.vue"),
+  },
+  {
+    path: "/",
+    component: () => import("layouts/GuestMainLayout.vue"),
+    children: [{ path: "", component: () => import("pages/MainGuest.vue") }],
   },
   {
     path: "/login",

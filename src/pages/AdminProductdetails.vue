@@ -5,13 +5,6 @@
       <div class="col-10">
         <q-toolbar class="toolbar">
           <q-toolbar-title>ดูรายละเอียด</q-toolbar-title>
-          <!-- <q-btn
-            color="primary"
-            icon="arrow_back"
-            label="Back to Admin Dashboard"
-            @click="backToAdminDashboard"
-            flat
-          /> -->
         </q-toolbar>
 
         <!-- Product Details Section -->
@@ -68,7 +61,12 @@
                   <strong>คงเหลือ:</strong>
                   {{ product?.quantity }} ชิ้น
                 </p>
-                <q-rating v-model="stars" readonly size="20px" />
+
+                <p class="product-info">
+                  <strong>คะแนนเฉลี่ย:</strong>
+                  {{ averageRating }} ดาว
+                </p>
+                <q-rating :model-value="averageRating" readonly size="20px" />
               </div>
             </q-card-section>
           </q-card>
@@ -77,7 +75,7 @@
         <!-- Reviews Section -->
         <q-card v-if="reviews.length > 0" class="reviews-section">
           <q-card-section>
-            <h3 class="section-title">Reviews</h3>
+            <h3 class="section-title">รีวิว</h3>
             <q-list>
               <q-item
                 v-for="review in reviews"
@@ -89,14 +87,14 @@
                 </q-item-section>
 
                 <q-item-section>
-                  <q-item-label
-                    ><strong>User:</strong> {{ review.username }}</q-item-label
-                  >
+                  <q-item-label>
+                    <strong>ผู้ใช้งาน:</strong> {{ review.username }}
+                  </q-item-label>
                   <q-item-label>{{ review.review }}</q-item-label>
                   <q-item-label caption>
-                    Reviewed on {{ formatDateToThai(review.review_date) }}
+                    รีวิวเมื่อ {{ formatDateToThai(review.review_date) }}
                   </q-item-label>
-                  <q-rating :value="review.rating" readonly size="20px" />
+                  <q-rating :model-value="review.rating" readonly size="20px" />
                 </q-item-section>
 
                 <q-item-section side top>
@@ -104,7 +102,7 @@
                     color="negative"
                     @click="deleteReview(review.review_id)"
                     icon="delete"
-                    label="Delete Review"
+                    label=""
                     flat
                     class="delete-button"
                   />
@@ -118,7 +116,7 @@
         <div v-else>
           <q-card class="no-reviews-card">
             <q-card-section>
-              <p>No reviews for this product.</p>
+              <p>ยังไม่มีรีวิวสำหรับผลิตภัณฑ์นี้</p>
             </q-card-section>
           </q-card>
         </div>
@@ -148,7 +146,9 @@ export default {
     const reviews = ref([]);
     const router = useRouter();
     const currentImageIndex = ref(0);
+    const averageRating = ref(0); // To store the average rating
 
+    // Function to format the date in Thai
     const formatDateToThai = (dateString) => {
       const date = new Date(dateString);
       return new Intl.DateTimeFormat("th-TH", {
@@ -158,13 +158,23 @@ export default {
       }).format(date);
     };
 
+    // Function to calculate the average rating from reviews
+    const calculateAverageRating = () => {
+      if (reviews.value.length > 0) {
+        const total = reviews.value.reduce(
+          (acc, review) => acc + review.rating,
+          0
+        );
+        averageRating.value = (total / reviews.value.length).toFixed(1);
+      }
+    };
+
     const fetchProduct = async () => {
       try {
         const productId = parseInt(router.currentRoute.value.params.id);
         const response = await axios.get(
           `http://localhost:3000/products/${productId}`
         );
-
         product.value = response.data;
 
         // ตรวจสอบและแปลง images_base64 หากเป็น JSON String
@@ -190,6 +200,9 @@ export default {
           `http://localhost:3000/product-reviews/${productId}`
         );
         reviews.value = response.data;
+
+        // Calculate the average rating when the reviews are fetched
+        calculateAverageRating();
       } catch (error) {
         console.error("Error fetching reviews:", error);
       }
@@ -222,7 +235,7 @@ export default {
     };
 
     const backToAdminDashboard = () => {
-      router.push("/admin");
+      router.push("/admincart");
     };
 
     onMounted(async () => {
@@ -237,6 +250,7 @@ export default {
       deleteReview,
       backToAdminDashboard,
       currentImageIndex,
+      averageRating,
     };
   },
 };
